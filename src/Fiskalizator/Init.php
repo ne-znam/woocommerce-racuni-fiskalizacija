@@ -10,6 +10,7 @@ class Init extends Instance {
 
 	public function init_hooks() {
 		Admin::instance();
+		Order::instance();
 		if (defined( 'WP_CLI' ) && WP_CLI) {
 			Cli::instance();
 		}

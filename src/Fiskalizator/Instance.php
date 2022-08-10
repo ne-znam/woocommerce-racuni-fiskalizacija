@@ -6,6 +6,8 @@ abstract class Instance {
 
 	private static $instances = [];
 
+	public $slug = 'neznam_fiskalizator';
+
 	/**
 	 * Constructor
 	 *
