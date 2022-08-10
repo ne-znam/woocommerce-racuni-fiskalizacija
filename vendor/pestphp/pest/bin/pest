@@ -1,0 +1,62 @@
+#!/usr/bin/env php
+<?php declare(strict_types=1);
+
+use Pest\Actions\ValidatesEnvironment;
+use Pest\ConfigLoader;
+use Pest\Support\Container;
+use Pest\Kernel;
+use Pest\TestSuite;
+use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\Console\Output\OutputInterface;
+
+(static function () {
+    // Used when Pest is required using composer.
+    $vendorPath = dirname(__DIR__, 4) . '/vendor/autoload.php';
+
+    // Used when Pest maintainers are running Pest tests.
+    $localPath = dirname(__DIR__) . '/vendor/autoload.php';
+
+    if (file_exists($vendorPath)) {
+        include_once $vendorPath;
+        $autoloadPath = $vendorPath;
+    } else {
+        include_once $localPath;
+        $autoloadPath = $localPath;
+    }
+
+    // Get $rootPath based on $autoloadPath
+    $rootPath = dirname($autoloadPath, 2);
+    $argv = new ArgvInput();
+
+    $testSuite = TestSuite::getInstance(
+        $rootPath,
+        $argv->getParameterOption('--test-directory', (new ConfigLoader($rootPath))->getTestsDirectory())
+    );
+
+    $isDecorated = $argv->getParameterOption('--colors', 'always') !== 'never';
+    $output = new ConsoleOutput(ConsoleOutput::VERBOSITY_NORMAL, $isDecorated);
+
+    $container = Container::getInstance();
+    $container->add(TestSuite::class, $testSuite);
+    $container->add(OutputInterface::class, $output);
+
+    $args = $_SERVER['argv'];
+
+    // Let's remove any arguments that PHPUnit does not understand
+    if ($argv->hasParameterOption('--test-directory')) {
+        foreach ($args as $key => $value) {
+            if (strpos($value, '--test-directory') !== false) {
+                unset($args[$key]);
+            }
+        }
+    }
+
+    $kernel = Kernel::boot();
+
+    $result = $kernel->handle($args);
+
+    $kernel->shutdown();
+
+    exit($result);
+})();

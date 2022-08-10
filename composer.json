@@ -1,0 +1,36 @@
+{
+    "name": "ne-znam/fiskalizator",
+    "description": "WooCommerce plugin za fiskalizaciju",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "autoload": {
+        "psr-4": {
+            "NeZnam\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Marko Banušić",
+            "email": "mbanusic@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+      "nticaric/fiskalizacija": "dev-master"
+    },
+    "require-dev": {
+        "pestphp/pest": "dev-master"
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "kylekatarnls/update-helper": true
+        }
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/ne-znam/fiskalizacija"
+        }
+    ]
+}

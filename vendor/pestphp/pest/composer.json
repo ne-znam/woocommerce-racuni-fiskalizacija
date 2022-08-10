@@ -1,0 +1,99 @@
+{
+    "name": "pestphp/pest",
+    "description": "An elegant PHP Testing Framework.",
+    "keywords": [
+        "php",
+        "framework",
+        "pest",
+        "unit",
+        "test",
+        "testing"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Nuno Maduro",
+            "email": "enunomaduro@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^8.1.0",
+        "nunomaduro/collision": "^6.2.1",
+        "pestphp/pest-plugin": "^1.0.0",
+        "phpunit/phpunit": "10.0.x-dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "Pest\\": "src/"
+        },
+        "exclude-from-classmap": [
+            "../phpunit/src/Runner/TestSuiteLoader.php",
+            "vendor/phpunit/phpunit/src/Runner/TestSuiteLoader.php"
+        ],
+        "files": [
+            "overrides/Runner/TestSuiteLoader.php",
+            "src/Functions.php",
+            "src/Pest.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/PHPUnit/"
+        },
+        "files": [
+            "tests/Autoload.php"
+        ]
+    },
+    "require-dev": {
+        "illuminate/console": "^9.23",
+        "illuminate/support": "^9.23",
+        "laravel/dusk": "^6.25.1",
+        "pestphp/pest-dev-tools": "dev-master"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "sort-packages": true,
+        "preferred-install": "dist",
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "bin": [
+        "bin/pest"
+    ],
+    "scripts": {
+        "lint": "PHP_CS_FIXER_IGNORE_ENV=true php-cs-fixer fix -v",
+        "test:lint": "PHP_CS_FIXER_IGNORE_ENV=true php-cs-fixer fix -v --dry-run",
+        "test:types": "phpstan analyse --ansi --memory-limit=-1 --debug",
+        "test:unit": "php bin/pest --colors=always --exclude-group=integration",
+        "test:parallel": "exit 1",
+        "test:integration": "exit 1",
+        "update:snapshots": "exit 1",
+        "test": [
+            "@test:lint",
+            "@test:types",
+            "@test:unit"
+        ]
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-next": "2.x-dev"
+        },
+        "pest": {
+            "plugins": [
+                "Pest\\Plugins\\Coverage",
+                "Pest\\Plugins\\Init",
+                "Pest\\Plugins\\Environment",
+                "Pest\\Plugins\\Memory",
+                "Pest\\Plugins\\Retry",
+                "Pest\\Plugins\\Version"
+            ]
+        },
+        "laravel": {
+            "providers": [
+                "Pest\\Laravel\\PestServiceProvider"
+            ]
+        }
+    }
+}
