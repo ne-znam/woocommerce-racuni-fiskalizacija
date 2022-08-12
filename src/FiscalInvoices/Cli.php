@@ -1,5 +1,5 @@
 <?php
-namespace NeZnam\Fiskalizator;
+namespace NeZnam\FiscalInvoices;
 
 class Cli extends \WP_CLI_Command {
 
@@ -18,8 +18,8 @@ class Cli extends \WP_CLI_Command {
 
 	public function test() {
 		$order = Order::instance();
-		$o = wc_get_order(12);
-		//$order->generateReceiptNumber($o);
+		$o = wc_get_order(17);
+		$order->generateReceiptNumber($o);
 		$order->processOrder($o);
 	}
 }

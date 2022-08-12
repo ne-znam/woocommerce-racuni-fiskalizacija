@@ -1,25 +1,28 @@
-=== Neznam_fiskalizator ===
+=== NeZnam računi i fiskalizacija ===
 Contributors: mbanusic
-Tags: fiskalizacija, porezi, hrvatska
+Tags: racuni, fiskalizacija, porezi, hrvatska
 Requires at least: 4.5
 Tested up to: 6.0.1
 Requires PHP: 7.4
-Stable tag: 1.0.0
-License: GPLv2 or later
-License URI: https://www.gnu.org/licenses/gpl-2.0.html
+Stable tag: 0.1.0
+License: GPLv3
+License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-WooCommerce plugin za fiskalizaciju računa direktno u WordPressu.
+WooCommerce plugin za izdavanje i fiskalizaciju računa direktno u WordPressu za hrvatsko tržište
 
 == Description ==
 
-Ovo je plugin za izdavanje računa direktno iz WooCommerca, bez potrebe za rješenima treće strane.
+Ovo je plugin za izdavanje fiskaliziranih računa direktno iz WooCommerca na hrvatskom tržištu, bez potrebe za rješenima treće strane.
 
 Plugin prilikom završetka narudžbe, kreira novi račun s odgovarajućim sekvencijalnim brojem računa i izgledom broja računa kako je definirano
-u postavkama. Potom ga fiskalizira pozivom na servis Porezne uprave. Sprema JIR/ZKI, te generira PDF račun s QR kodom. Potom ga šalje korisniku emailom.
+u postavkama. Potom ga fiskalizira pozivom na servis Porezne uprave. Sprema JIR/ZKI.
 
-Računi ostaju dostupni i za ponovno slanje, kao i za knjigovodstvenu arhivu.
+Račun može izdati u PDF obliku s potrebnim QR kodom.
 
-Više detalja će biti raspisano, kako dodamo funkcionalnost
+Dodatak također može odraditi i fiskaliziranje povrata novca.
+
+Autor dodatka se odriče bilo kakve odgovornosti za potencijalnu štetu uzrokovanu korištenjem ovog dodatka.
+Ukoliko imate sumnje da plugin ne radi dobro, prijavite [ovdje](https://github.com/ne-znam/woocommerce-racuni-fiskalizacija/issues)
 
 == Installation ==
 
@@ -37,18 +40,20 @@ Da, i morate ga namjestiti u postavkama dodatka
 
 Autor ovog dodatka nudi usluge savjetovanja i namještanja ovog dodatka.
 
+= Mogu li tužiti autora plugina za dobivenu kaznu od Porezne uprave? =
+
+Ne, autor se odriče bilo kakve odgovornosti za neispravno korištenje i namještanje ovog dodatka. Vlasnik webshopa i osoba koja ga je namjestila
+su same odgovorne za korištenje dodatka koje je rezultiralo kaznom.
+
 == Screenshots ==
 
-1. This screen shot description corresponds to screenshot-1.(png|jpg|jpeg|gif). Note that the screenshot is taken from
-the /assets directory or the directory that contains the stable readme.txt (tags or trunk). Screenshots in the /assets
-directory take precedence. For example, `/assets/screenshot-1.png` would win over `/tags/4.3/screenshot-1.png`
-(or jpg, jpeg, gif).
+1. This is the first screen shot
 2. This is the second screen shot
 
 == Changelog ==
 
-= 1.0 =
-Inicijalno rješenje
+= 0.1.0 =
+Inicijalno rješenje koje odradi fiskalizaciju
 
 == Arbitrary section ==
 

@@ -1,12 +1,12 @@
 <?php
 
-namespace NeZnam\Fiskalizator;
+namespace NeZnam\FiscalInvoices;
 
 abstract class Instance {
 
 	private static $instances = [];
 
-	public $slug = 'neznam_fiskalizator';
+	public $slug = 'neznam_racuni_fiskalizacija';
 
 	/**
 	 * Constructor

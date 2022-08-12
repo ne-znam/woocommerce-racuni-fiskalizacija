@@ -1,6 +1,6 @@
 <?php
 
-namespace NeZnam\Fiskalizator;
+namespace NeZnam\FiscalInvoices;
 
 class Init extends Instance {
 	public function __construct() {
