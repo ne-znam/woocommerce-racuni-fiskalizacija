@@ -3,22 +3,24 @@
 namespace NeZnam\FiscalInvoices;
 
 
-
+use Exception;
 use Nticaric\Fiskalizacija\Fiskalizacija;
+use WC_Admin_Settings;
 
 class Admin extends Instance {
 
 	public function __construct() {
-		add_filter( 'woocommerce_get_sections_tax', [$this, 'add_section']);
-		add_filter( 'woocommerce_get_settings_tax', [$this, 'all_settings'], 10, 2 );
-		add_filter('woocommerce_admin_settings_sanitize_option_'.$this->slug.'_cert_path', [$this, 'validate_cert'], 10, 3);
-		add_filter('woocommerce_admin_settings_sanitize_option_'.$this->slug.'_cert_password', [$this, 'validate_cert_pass'], 10, 3);
-		add_filter('woocommerce_admin_settings_sanitize_option_'.$this->slug.'_company_oib', [$this, 'validate_oib'], 10, 3);
-		add_filter('woocommerce_admin_settings_sanitize_option_'.$this->slug.'_operator_oib', [$this, 'validate_oib'], 10, 3);
+		add_filter( 'woocommerce_get_sections_tax', [ $this, 'add_section' ] );
+		add_filter( 'woocommerce_get_settings_tax', [ $this, 'all_settings' ], 10, 2 );
+		add_filter( 'woocommerce_admin_settings_sanitize_option_' . $this->slug . '_cert_path', [ $this, 'validate_cert' ], 10, 3 );
+		add_filter( 'woocommerce_admin_settings_sanitize_option_' . $this->slug . '_cert_password', [ $this, 'validate_cert_pass' ], 10, 3 );
+		add_filter( 'woocommerce_admin_settings_sanitize_option_' . $this->slug . '_company_oib', [ $this, 'validate_oib' ], 10, 3 );
+		add_filter( 'woocommerce_admin_settings_sanitize_option_' . $this->slug . '_operator_oib', [ $this, 'validate_oib' ], 10, 3 );
 	}
 
 	public function add_section( $sections ) {
-		$sections[$this->slug] = __( 'Fiskalizacija', $this->slug );
+		$sections[ $this->slug ] = __( 'Fiskalizacija', $this->slug );
+
 		return $sections;
 	}
 
@@ -28,8 +30,12 @@ class Admin extends Instance {
 		 **/
 		if ( $current_section == $this->slug ) {
 			$settings_invoices = array();
-			// Add Title to the Settings
-			$settings_invoices[] = array( 'name' => __( 'Postavke za fiskalizaciju', $this->slug ), 'type' => 'title', 'desc' => __( 'Ovdje možete namjestiti sve postavke vezane uz fiskalizaciju', $this->slug ), 'id' => $this->slug );
+			$settings_invoices[] = array(
+				'name' => __( 'Postavke za fiskalizaciju', $this->slug ),
+				'type' => 'title',
+				'desc' => __( 'Ovdje možete namjestiti sve postavke vezane uz fiskalizaciju', $this->slug ),
+				'id'   => $this->slug
+			);
 			// Add text field option
 			$settings_invoices[] = array(
 				'name'     => __( 'Lokacija certifikata', $this->slug ),
@@ -89,7 +95,11 @@ class Admin extends Instance {
 				'default'  => 1
 			);
 
-			$settings_invoices[] = array( 'type' => 'sectionend', 'id' => $this->slug );
+			$settings_invoices[] = array(
+				'type' => 'sectionend',
+				'id'   => $this->slug
+			);
+
 			return $settings_invoices;
 
 			/**
@@ -100,25 +110,27 @@ class Admin extends Instance {
 		}
 	}
 
-	public function validate_cert($value, $option, $raw_value) {
+	public function validate_cert( $value, $option, $raw_value ) {
 		// try to open cert
-		$f = file_get_contents($value);
-		if (false === $f) {
-			\WC_Admin_Settings::add_error( __( 'Lokacija certifikata nije ispravna', 'woocommerce' ) );
+		$f = file_get_contents( $value );
+		if ( false === $f ) {
+			WC_Admin_Settings::add_error( __( 'Lokacija certifikata nije ispravna', 'woocommerce' ) );
 		}
+
 		return $value;
 	}
 
-	public function validate_cert_pass($value, $option, $raw_value) {
-		$certPath = get_option($this->slug . '_cert_path');
+	public function validate_cert_pass( $value, $option, $raw_value ) {
+		$certPath = get_option( $this->slug . '_cert_path' );
 		try {
-			$fis = new Fiskalizacija($certPath, $value, 'TLS', true);
-			if (!$fis->getPrivateKey()) {
-				\WC_Admin_Settings::add_error( __( 'Lozinka i certifikat se ne podudaraju', 'woocommerce' ) );
+			$fis = new Fiskalizacija( $certPath, $value, 'TLS', true );
+			if ( ! $fis->getPrivateKey() ) {
+				WC_Admin_Settings::add_error( __( 'Lozinka i certifikat se ne podudaraju', 'woocommerce' ) );
 			}
-		} catch (\Exception $e) {
-			\WC_Admin_Settings::add_error( __( 'Lozinka i certifikat se ne podudaraju', 'woocommerce' ) );
+		} catch ( Exception $e ) {
+			WC_Admin_Settings::add_error( __( 'Lozinka i certifikat se ne podudaraju', 'woocommerce' ) );
 		}
+
 		return $value;
 	}
 
@@ -130,23 +142,28 @@ class Admin extends Instance {
 	 *
 	 * https://github.com/domagojpa/oib-validation/blob/main/PHP/oib-validation.php
 	 */
-	public function validate_oib($oib, $option, $raw_value) {
-		if (strlen($oib) != 11 || !is_numeric($oib)) {
-			\WC_Admin_Settings::add_error( __( $option['name'] . ' nema ispravan broj znamenki', $this->slug ) );
+	public function validate_oib( $oib, $option, $raw_value ) {
+		if ( strlen( $oib ) != 11 || ! is_numeric( $oib ) ) {
+			WC_Admin_Settings::add_error( __( $option['name'] . ' nema ispravan broj znamenki', $this->slug ) );
 		}
 		$a = 10;
-		for ($i = 0; $i < 10; $i++) {
-			$a += (int)$oib[$i];
+		for ( $i = 0; $i < 10; $i ++ ) {
+			$a += (int) $oib[ $i ];
 			$a %= 10;
-			if ( $a == 0 ) { $a = 10; }
+			if ( $a == 0 ) {
+				$a = 10;
+			}
 			$a *= 2;
 			$a %= 11;
 		}
 		$kontrolni = 11 - $a;
-		if ( $kontrolni == 10 ) { $kontrolni = 0; }
-		if ($kontrolni != intval(substr($oib, 10, 1), 10)) {
-			\WC_Admin_Settings::add_error( __( $option['name'] . ' nije ispravan', $this->slug ) );
+		if ( $kontrolni == 10 ) {
+			$kontrolni = 0;
 		}
+		if ( $kontrolni != intval( substr( $oib, 10, 1 ), 10 ) ) {
+			WC_Admin_Settings::add_error( __( $option['name'] . ' nije ispravan', $this->slug ) );
+		}
+
 		return $oib;
 	}
 }

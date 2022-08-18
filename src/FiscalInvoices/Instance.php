@@ -14,11 +14,12 @@ abstract class Instance {
 	 */
 	abstract protected function __construct();
 
-	public static function instance () {
+	public static function instance() {
 		$classname = get_called_class();
 		if ( ! isset( self::$instances[ $classname ] ) ) {
 			self::$instances[ $classname ] = new $classname();
 		}
+
 		return self::$instances[ $classname ];
 	}
 
@@ -27,7 +28,7 @@ abstract class Instance {
 	 */
 	public function __clone() {
 		// Override this PHP function to prevent unwanted copies of your instance.
-		_doing_it_wrong('clone', 'No cloning', '1.0');
+		_doing_it_wrong( 'clone', 'No cloning', '1.0' );
 	}
 
 	/**
@@ -35,6 +36,6 @@ abstract class Instance {
 	 */
 	public function __wakeup() {
 		// Override this PHP function to prevent unwanted copies of your instance.
-		_doing_it_wrong('clone', 'No cloning', '1.0');
+		_doing_it_wrong( 'clone', 'No cloning', '1.0' );
 	}
 }
