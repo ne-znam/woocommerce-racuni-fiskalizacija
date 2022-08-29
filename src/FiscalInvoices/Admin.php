@@ -71,6 +71,16 @@ class Admin extends Instance {
 			);
 
 			$settings_invoices[] = array(
+				'name'     => __( 'Izgled broja računa', $this->slug ),
+				'desc_tip' => __( 'Unesite željeni izgled broja računa', $this->slug ),
+				'id'       => $this->slug . '_invoice_format',
+				'type'     => 'text',
+				'desc'     => __( 'Unesite željeni izgled broja računa za sprintf("%s/%s/%s", broj racuna, oznaka poslovnog prostora, oznaka uredaja)', $this->slug ),
+				'default'  => '%s/%s/%s'
+			);
+
+
+			$settings_invoices[] = array(
 				'name'     => __( 'OIB webshopa', $this->slug ),
 				'desc_tip' => __( 'Unesite OIB obveznika fiskalizacije', $this->slug ),
 				'id'       => $this->slug . '_company_oib',

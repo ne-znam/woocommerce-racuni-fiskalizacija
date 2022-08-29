@@ -79,12 +79,13 @@ class Order extends Instance {
 		if ( $to === 'completed' ) {
 			$area         = get_option( $this->slug . '_business_area' );
 			$device       = get_option( $this->slug . '_device_number' );
+			$invoice_format = get_option( $this->slug . '_invoice_format', '%s/%s/%s');
 			// get sequential number for invoice
 			$invoice_number = $this->generateInvoiceNumber( $order );
 			// create new invoice, store data for invoice
 			$id = wp_insert_post([
 				'post_type' => 'neznam_invoice',
-				'post_title' => sprintf("%s/%s/%s", $invoice_number, $area, $device),
+				'post_title' => apply_filters($this->slug . '_invoice_format', sprintf($invoice_format, $invoice_number, $area, $device), $invoice_number, $area, $device),
 				'post_status' => 'publish',
 			]);
 			add_post_meta($id, '_order_id', $order_id);
