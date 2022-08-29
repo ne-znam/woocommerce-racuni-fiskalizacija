@@ -17,11 +17,9 @@ Ovo je plugin za izdavanje fiskaliziranih računa direktno iz WooCommerca na hrv
 Plugin prilikom završetka narudžbe, kreira novi račun s odgovarajućim sekvencijalnim brojem računa i izgledom broja računa kako je definirano
 u postavkama. Potom ga fiskalizira pozivom na servis Porezne uprave. Sprema JIR/ZKI.
 
-Račun može izdati u PDF obliku s potrebnim QR kodom.
+Plugin dodaje informacije o računu u Completed email.
 
-Dodatak također može odraditi i fiskaliziranje povrata novca.
-
-Autor dodatka se odriče bilo kakve odgovornosti za potencijalnu štetu uzrokovanu korištenjem ovog dodatka.
+Autor dodatka se odriče bilo kakve odgovornosti za potencijalnu štetu uzrokovanu korištenjem ovog dodatka. Ovaj dodatak je u alpha verziji i molim da ga tako i koristite.
 Ukoliko imate sumnje da plugin ne radi dobro, prijavite [ovdje](https://github.com/ne-znam/woocommerce-racuni-fiskalizacija/issues)
 
 == Installation ==
