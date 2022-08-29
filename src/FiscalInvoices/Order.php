@@ -2,6 +2,7 @@
 
 namespace NeZnam\FiscalInvoices;
 
+use Com\Tecnick\Barcode\Type\Square\QrCode;
 use DOMDocument;
 use Exception;
 use Nticaric\Fiskalizacija\Bill\Bill;
@@ -37,22 +38,28 @@ class Order extends Instance {
 	 */
 	public function add_data_to_email( $order, $sent_to_admin, $plain_text, $email ) {
 
-		if ( ! $order->get_meta( $this->slug . '_jir' ) ) {
+		if ( ! $order->get_meta( '_invoice_number' ) ) {
 			// we don't have fiscalisation data, so we skip this part
 			return;
 		}
+		$invoice_id = $order->get_meta( '_invoice_number' );
 		if ( $plain_text ) {
-			echo "JIR: " . $order->get_meta( $this->slug . '_jir' ) . "\n";
-			echo "ZKI: " . $order->get_meta( $this->slug . '_zki' ) . "\n";
-			echo "URL za provjeru: " . $order->get_meta( $this->slug . '_qr_code_link' );
+			echo "JIR: " . get_post_meta( $invoice_id, $this->slug . '_jir' ) . "\n";
+			echo "ZKI: " . $order->get_meta( $invoice_id, $this->slug . '_zki' ) . "\n";
+			echo "URL za provjeru: " . $order->get_meta( $invoice_id, $this->slug . '_qr_code_link' );
 		} else {
+			$url = get_post_meta( $invoice_id, $this->slug . '_qr_code_link', true );
+			$qr  = new QrCode( $url, 200, 200 );
 			?>
 			<p>
-				JIR: <?php echo $order->get_meta( $this->slug . '_jir' ) ?>
+				Račun broj: <?php echo sprintf('%s/%s/%s', get_post_meta($invoice_id, '_invoice_number', true), get_option( $this->slug . '_business_area' ), get_option( $this->slug . '_device_number' )) ?>
 				<br>
-				ZKI: <?php echo $order->get_meta( $this->slug . '_zki' ) ?>
+				JIR: <?php echo get_post_meta( $invoice_id, $this->slug . '_jir' ) ?>
 				<br>
-				Ovdje staviti QR kod
+				ZKI: <?php echo get_post_meta( $invoice_id, $this->slug . '_zki' ) ?>
+				<br>
+				<img
+					src="data:image/png;base64,<?php echo base64_encode( $qr->getPngData() ) ?>">
 			</p>
 			<?php
 		}
