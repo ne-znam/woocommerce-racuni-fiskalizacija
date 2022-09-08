@@ -16,6 +16,26 @@ class Admin extends Instance {
 		add_filter( 'woocommerce_admin_settings_sanitize_option_' . $this->slug . '_cert_password', [ $this, 'validate_cert_pass' ], 10, 3 );
 		add_filter( 'woocommerce_admin_settings_sanitize_option_' . $this->slug . '_company_oib', [ $this, 'validate_oib' ], 10, 3 );
 		add_filter( 'woocommerce_admin_settings_sanitize_option_' . $this->slug . '_operator_oib', [ $this, 'validate_oib' ], 10, 3 );
+		add_filter( 'plugin_action_links_neznam-racuni-fiskalizacija/neznam-racuni-fiskalizacija.php', [$this, 'settings_link'], 10, 1 );
+	}
+
+	function settings_link( $links ) {
+		// Build and escape the URL.
+		$url = esc_url( add_query_arg([
+			'page' => 'wc-settings',
+			'tab' => 'tax',
+			'section' => $this->slug
+			],
+			get_admin_url() . 'admin.php'
+		) );
+		// Create the link.
+		$settings_link = "<a href='$url'>" . __( 'Postavke', $this->slug ) . '</a>';
+		// Adds the link to the end of the array.
+		array_unshift(
+			$links,
+			$settings_link
+		);
+		return $links;
 	}
 
 	public function add_section( $sections ) {
