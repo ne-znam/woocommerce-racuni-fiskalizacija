@@ -24,7 +24,7 @@ class Cli extends WP_CLI_Command {
 
 	public function test() {
 		$order = Order::instance();
-		$o     = wc_get_order( 17 );
-		$order->process_completed_order(17, 'processing', 'completed', $o);
+		$o     = wc_get_order( 50 );
+		$order->process_order($o);
 	}
 }

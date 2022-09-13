@@ -17,6 +17,21 @@ class Admin extends Instance {
 		add_filter( 'woocommerce_admin_settings_sanitize_option_' . $this->slug . '_company_oib', [ $this, 'validate_oib' ], 10, 3 );
 		add_filter( 'woocommerce_admin_settings_sanitize_option_' . $this->slug . '_operator_oib', [ $this, 'validate_oib' ], 10, 3 );
 		add_filter( 'plugin_action_links_neznam-racuni-fiskalizacija/neznam-racuni-fiskalizacija.php', [$this, 'settings_link'], 10, 1 );
+		add_filter( 'woocommerce_order_actions', [$this, 'order_actions'], 10, 2 );
+		add_action( 'woocommerce_order_action_' . $this->slug . '_get_invoice', [$this, 'do_order_action'], 10, 1);
+	}
+
+	function do_order_action($order) {
+		$c = Order::instance();
+		$id = $c->process_order($order);
+		wp_redirect(get_edit_post_link($id));
+		exit();
+	}
+
+	function order_actions($actions, $order) {
+		$actions[$this->slug . '_get_invoice'] = __('Izdaj fiskalni račun', $this->slug);
+
+		return $actions;
 	}
 
 	function settings_link( $links ) {
@@ -54,7 +69,7 @@ class Admin extends Instance {
 				'name' => __( 'Postavke za fiskalizaciju', $this->slug ),
 				'type' => 'title',
 				'desc' => __( 'Ovdje možete namjestiti sve postavke vezane uz fiskalizaciju', $this->slug ),
-				'id'   => $this->slug
+				'id'   => $this->slug . '_basic'
 			);
 			// Add text field option
 			$settings_invoices[] = array(
@@ -125,9 +140,55 @@ class Admin extends Instance {
 				'default'  => 1
 			);
 
+			// order status
+			$statuses             = wc_get_order_statuses();
+			$statuses['manually'] = __( 'Ručno', $this->slug );
+			$settings_invoices[]  = array(
+				'title'         => 'Kada fiskalizirati',
+				'id'            => $this->slug . '_when_fis',
+				'default'       => 'manually',
+				'type'          => 'select',
+				'class'   => 'wc-enhanced-select',
+				'options'       => $statuses
+			);
+
 			$settings_invoices[] = array(
 				'type' => 'sectionend',
-				'id'   => $this->slug
+				'id'   => $this->slug . '_basic',
+			);
+
+			$settings_invoices[] = array(
+				'name' => __( 'Postavke za načine plaćanja', $this->slug ),
+				'type' => 'title',
+				'desc' => __( 'Uredite koje vrste plaćanja treba fiskalizirati', $this->slug ),
+				'id'   => $this->slug . '_payments'
+			);
+
+			// get all active payment types
+			$gateways = new \WC_Payment_Gateways();
+			$payments = $gateways->get_available_payment_gateways();
+			/** @var \WC_Payment_Gateway $payment */
+			foreach ($payments as $payment) {
+				$settings_invoices[] = array(
+					'title'         => $payment->get_title(),
+					'id'            => $this->slug . '_' . $payment->id,
+					'default'       => 'N',
+					'type'          => 'select',
+					'class'   => 'wc-enhanced-select',
+					'options'       => [
+						'N' => 'Ne fiskalizirati',
+						'T' => 'Transakcijski račun',
+						'G' => 'Gotovina',
+						'K' => 'Kartice',
+						'C' => 'Ček',
+						'O' => 'Ostalo'
+					],
+				);
+			}
+
+			$settings_invoices[] = array(
+				'type' => 'sectionend',
+				'id'   => $this->slug . '_payments'
 			);
 
 			return $settings_invoices;

@@ -71,57 +71,39 @@ class Order extends Instance {
 	 * @param $to
 	 * @param $order
 	 *
-	 * @return void
+	 * @return int
 	 * @throws Exception
 	 */
 	public function process_completed_order( $order_id, $from, $to, $order ) {
-		// TODO: set order status as user desires
-		if ( $to === 'completed' ) {
-			$area         = get_option( $this->slug . '_business_area' );
-			$device       = get_option( $this->slug . '_device_number' );
-			$invoice_format = get_option( $this->slug . '_invoice_format', '%s/%s/%s');
-			// get sequential number for invoice
-			$invoice_number = $this->generateInvoiceNumber( $order );
-			// create new invoice, store data for invoice
-			$id = wp_insert_post([
-				'post_type' => 'neznam_invoice',
-				'post_title' => apply_filters($this->slug . '_invoice_format', sprintf($invoice_format, $invoice_number, $area, $device), $invoice_number, $area, $device),
-				'post_status' => 'publish',
-			]);
-			add_post_meta($id, '_order_id', $order_id);
-			add_post_meta($id, '_invoice_number', $invoice_number);
-			Invoice::instance()->processFiscal($id);
+		$status = get_option($this->slug . '_when_fis');
+		if ( $status != 'manually' && $to === $status ) {
+			return $this->process_order($order);
 		}
+		return 0;
 	}
 
 	/**
 	 * @param WC_Order $order
 	 *
-	 * @return int
+	 * @return int|\WP_Error
 	 */
-	public function generateInvoiceNumber( WC_Order $order ) {
-		//get last number in year of order
-		$paid_at = $order->get_date_paid();
-		$q       = new WP_Query( [
-			'post_status'         => 'any',
-			'posts_per_page'      => 1,
-			'no_found_rows'       => true,
-			'ignore_sticky_posts' => true,
-			'post_type'           => 'neznam_invoice',
-			'year'                => $paid_at->date( 'Y' ),
-			'orderby'             => 'meta_value_num',
-			'meta_key'            => '_invoice_number',
-			'order'               => 'desc',
-		] );
-		if ( $q->have_posts() ) {
-			$q->the_post();
-			$receipt_number = (int) get_post_meta( $q->post->ID, '_invoice_number', true );
-			$receipt_number ++;
-		} else {
-			$receipt_number = 1;
-		}
+	public function process_order( WC_Order $order) {
+		$area         = get_option( $this->slug . '_business_area' );
+		$device       = get_option( $this->slug . '_device_number' );
+		$invoice_format = get_option( $this->slug . '_invoice_format', '%s/%s/%s');
+		// get sequential number for invoice
+		$invoice_number = Invoice::instance()->generateInvoiceNumber( $order->get_date_paid()->format('Y') );
+		// create new invoice, store data for invoice
+		$id = wp_insert_post([
+			'post_type' => 'neznam_invoice',
+			'post_title' => apply_filters($this->slug . '_invoice_format', sprintf($invoice_format, $invoice_number, $area, $device), $invoice_number, $area, $device),
+			'post_status' => 'publish',
+		]);
+		add_post_meta($id, '_order_id', $order->get_id());
+		add_post_meta($id, '_invoice_number', $invoice_number);
+		Invoice::instance()->processOrder($order, $id);
 
-		return $receipt_number;
+		Invoice::instance()->processFiscal($id, $order);
+		return $id;
 	}
-
 }
