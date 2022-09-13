@@ -128,7 +128,9 @@ class PostType extends Instance {
 		//switch action and perform operation
 		switch ($_POST['save']) {
 			case 'storno':
-				Invoice::instance()->createStorno($post_id);
+				$id = Invoice::instance()->createStorno($post_id);
+				wp_redirect(get_edit_post_link($id));
+				exit;
 		}
 	}
 }

@@ -203,6 +203,7 @@ class Invoice extends Instance {
 		add_post_meta($id, '_invoice_number', $invoice_number);
 		add_post_meta($id, '_storno', $post_id);
 		$this->processFiscal($id);
+		return $id;
 	}
 
 	/**
