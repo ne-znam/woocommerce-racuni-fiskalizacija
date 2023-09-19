@@ -22,9 +22,4 @@ class Cli extends WP_CLI_Command {
 		return self::$_instance;
 	}
 
-	public function test() {
-		$order = Order::instance();
-		$o     = wc_get_order( 50 );
-		$order->process_order($o);
-	}
 }

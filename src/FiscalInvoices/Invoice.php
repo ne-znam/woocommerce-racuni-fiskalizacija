@@ -11,6 +11,7 @@ use WC_Order;
 use WC_Tax;
 use Exception;
 use DOMDocument;
+use function Composer\Autoload\includeFile;
 
 class Invoice extends Instance {
 
@@ -29,6 +30,7 @@ class Invoice extends Instance {
 			'line_items' => [],
 			'note' => $order->get_customer_note(),
 			'billing_address' => [
+				'name' => $order->get_billing_first_name() . ' ' . $order->get_billing_last_name(),
 				'first_line' => $order->get_billing_address_1(),
 				'second_line' => $order->get_billing_address_2(),
 				'postcode' => $order->get_billing_postcode(),
@@ -58,6 +60,7 @@ class Invoice extends Instance {
 				if ($tax) {
 					if ( ! isset( $tax_rates[ $tax['rate'] ] ) ) {
 						$tax_rates[ $tax['rate'] ] = [
+							'name' => $tax['label'],
 							'base'    => 0,
 							'tax'     => 0,
 							'percent' => $tax['rate'],
@@ -121,6 +124,7 @@ class Invoice extends Instance {
 		$company_oib  = get_option( $this->slug . '_company_oib' );
 		$operator_oib = get_option( $this->slug . '_operator_oib' );
 		try {
+			$date = new \DateTime();
 			$fis        = new Fiskalizacija( $certPath, $certPass, 'TLS', $sandbox );
 			$billNumber = new BillNumber( get_post_meta($post_id, '_invoice_number', true), $area, $device );
 
@@ -137,7 +141,7 @@ class Invoice extends Instance {
 			$bill->setOib( $company_oib );
 			$bill->setHavePDV( true );
 			$bill->setNoteOfOrder( "N" );
-			$bill->setDateTime( date( 'd.m.Y\TH:i:s', $content['date'] ) );
+			$bill->setDateTime( $date->format('d.m.Y\TH:i:s') );
 			$bill->setBillNumber( $billNumber );
 			$bill->setListPDV( $listPdv );
 			$bill->setListPNP( $listPnp );
@@ -167,8 +171,9 @@ class Invoice extends Instance {
 			$jir = $DOMResponse->getElementsByTagName( 'Jir' )->item( 0 )->textContent;
 			update_post_meta( $post_id,  $this->slug . '_jir', $jir );
 			update_post_meta( $post_id,  $this->slug . '_zki', $bill->securityCode );
-			$created_at = date( 'Ymd_Hi', $content['date'] );
+			$created_at = $date->format('Ymd_Hi');
 			$total      = number_format( $total, 2, '', '' );
+			update_post_meta($post_id, $this->slug . '_created_at', $date->format('Y-m-d H:i:s'));
 			update_post_meta( $post_id, $this->slug . '_qr_code_link', "https://porezna.gov.hr/rn?jir=$jir&datv=$created_at&izn=$total", true );
 			if ($order) {
 				$order->add_order_note( 'Fiskalizacija uspješno obavljena - ' . $billNumber->numberNoteBill . '/' . $billNumber->noteOfBusinessArea . '/' . $billNumber->noteOfExcangeDevice );
@@ -233,5 +238,22 @@ class Invoice extends Instance {
 		}
 
 		return $receipt_number;
+	}
+
+	public function createPDF($post_id) {
+		$invoice = get_post($post_id);
+		$content = json_decode($invoice->post_content, true);
+		$invoice_number = get_post_meta($post_id, '_invoice_number', true);
+		$meta = get_post_meta($post_id);
+		$business_data = get_option($this->slug . '_business_data', []);
+
+		ob_start();
+		include_once plugin_dir_path(__FILE__) . 'templates/invoice.php';
+		$html = ob_get_clean();
+
+		$mpdf = new \Mpdf\Mpdf();
+		$mpdf->WriteHTML($html );
+		$mpdf->Output();
+		exit();
 	}
 }

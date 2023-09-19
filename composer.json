@@ -17,7 +17,8 @@
     "minimum-stability": "dev",
     "require": {
       "nticaric/fiskalizacija": "dev-master",
-      "tecnickcom/tc-lib-pdf": "dev-main"
+      "tecnickcom/tc-lib-pdf": "dev-main",
+        "mpdf/mpdf": "dev-development"
     },
     "require-dev": {
         "pestphp/pest": "dev-master",

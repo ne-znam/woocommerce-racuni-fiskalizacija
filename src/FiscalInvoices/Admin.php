@@ -55,7 +55,6 @@ class Admin extends Instance {
 
 	public function add_section( $sections ) {
 		$sections[ $this->slug ] = __( 'Fiskalizacija', $this->slug );
-
 		return $sections;
 	}
 
@@ -66,7 +65,8 @@ class Admin extends Instance {
 		if ( $current_section == $this->slug ) {
 			$settings_invoices = array();
 			$settings_invoices[] = array(
-				'name' => __( 'Postavke za fiskalizaciju', $this->slug ),
+				'name'
+				=> __( 'Postavke za fiskalizaciju', $this->slug ),
 				'type' => 'title',
 				'desc' => __( 'Ovdje možete namjestiti sve postavke vezane uz fiskalizaciju', $this->slug ),
 				'id'   => $this->slug . '_basic'
