@@ -71,27 +71,29 @@ class PostType extends Instance {
 
 	public function fiscal_data( $post ) {
 		$url = get_post_meta( $post->ID, $this->slug . '_qr_code_link', true );
-		$qr  = new QrCode( $url, 200, 200 );
-		?>
-		<p>
-			Invoice: <?php echo get_post_meta( $post->ID, '_invoice_number', true ) ?>
-			<br>
-			JIR: <?php echo get_post_meta( $post->ID, $this->slug . '_jir', true ) ?>
-			<br>
-			ZKI: <?php echo get_post_meta( $post->ID, $this->slug . '_zki', true ) ?>
-			<br>
-			<img
-				src="data:image/png;base64,<?php echo base64_encode( $qr->getPngData() ) ?>">
-		</p>
-		<?php
+		if ($url) {
+			$qr  = new QrCode( $url, 200, 200 );
+			?>
+			<p>
+				Invoice: <?php echo get_post_meta( $post->ID, '_invoice_number', true ) ?>
+				<br>
+				JIR: <?php echo get_post_meta( $post->ID, $this->slug . '_jir', true ) ?>
+				<br>
+				ZKI: <?php echo get_post_meta( $post->ID, $this->slug . '_zki', true ) ?>
+				<br>
+				<img
+					src="data:image/png;base64,<?php echo base64_encode( $qr->getPngData() ) ?>">
+			</p>
+			<?php
+		}
 	}
 
 	public function invoice_actions($post) {
 		if (!get_post_meta($post->ID, 'storno', true)) {
 			wp_nonce_field( $this->slug . '_save_data', $this->slug . '_meta_nonce' );
-		?>
-		<button type="submit" class="button save_order button-primary" name="save" value="storno">Storno</button>
-		<?php
+			?>
+			<button type="submit" class="button save_order button-primary" name="save" value="storno">Storno</button>
+			<?php
 		}
 	}
 

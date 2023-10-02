@@ -40,7 +40,7 @@ class Admin extends Instance {
 			'page' => 'wc-settings',
 			'tab' => 'tax',
 			'section' => $this->slug
-			],
+		],
 			get_admin_url() . 'admin.php'
 		) );
 		// Create the link.
@@ -66,7 +66,7 @@ class Admin extends Instance {
 			$settings_invoices = array();
 			$settings_invoices[] = array(
 				'name'
-				=> __( 'Postavke za fiskalizaciju', $this->slug ),
+				       => __( 'Postavke za fiskalizaciju', $this->slug ),
 				'type' => 'title',
 				'desc' => __( 'Ovdje možete namjestiti sve postavke vezane uz fiskalizaciju', $this->slug ),
 				'id'   => $this->slug . '_basic'
@@ -212,14 +212,14 @@ class Admin extends Instance {
 	}
 
 	public function validate_cert_pass( $value, $option, $raw_value ) {
-		$certPath = get_option( $this->slug . '_cert_path' );
+		$certPath = $_POST[$this->slug . '_cert_path'];
 		try {
-			$fis = new Fiskalizacija( $certPath, $value, 'TLS', true );
+			$fis = new Fiskalizacija( $certPath, $value, 'TLS', false );
 			if ( ! $fis->getPrivateKey() ) {
 				WC_Admin_Settings::add_error( __( 'Lozinka i certifikat se ne podudaraju', 'woocommerce' ) );
 			}
 		} catch ( Exception $e ) {
-			WC_Admin_Settings::add_error( __( 'Lozinka i certifikat se ne podudaraju', 'woocommerce' ) );
+			WC_Admin_Settings::add_error( __( 'Lozinka i certifikat se ne podudaraju1', 'woocommerce' ) );
 		}
 
 		return $value;

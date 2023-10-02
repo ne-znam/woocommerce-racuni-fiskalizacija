@@ -54,9 +54,9 @@ class Order extends Instance {
 			<p>
 				Račun broj: <?php echo sprintf('%s/%s/%s', get_post_meta($invoice_id, '_invoice_number', true), get_option( $this->slug . '_business_area' ), get_option( $this->slug . '_device_number' )) ?>
 				<br>
-				JIR: <?php echo get_post_meta( $invoice_id, $this->slug . '_jir' ) ?>
+				JIR: <?php echo get_post_meta( $invoice_id, $this->slug . '_jir', true ) ?>
 				<br>
-				ZKI: <?php echo get_post_meta( $invoice_id, $this->slug . '_zki' ) ?>
+				ZKI: <?php echo get_post_meta( $invoice_id, $this->slug . '_zki', true ) ?>
 				<br>
 				<img
 					src="data:image/png;base64,<?php echo base64_encode( $qr->getPngData() ) ?>">
