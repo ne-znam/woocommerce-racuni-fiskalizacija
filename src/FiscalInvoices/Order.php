@@ -10,6 +10,7 @@ use Nticaric\Fiskalizacija\Bill\BillNumber;
 use Nticaric\Fiskalizacija\Bill\BillRequest;
 use Nticaric\Fiskalizacija\Bill\TaxRate;
 use Nticaric\Fiskalizacija\Fiskalizacija;
+use PHPMailer\PHPMailer\PHPMailer;
 use WC_Order;
 use WC_Order_Item_Product;
 use WC_Tax;
@@ -36,6 +37,31 @@ class Order extends Instance {
 			30,
 			4
 		);
+
+		add_filter(
+			'woocommerce_email_attachments',
+			array(
+				$this,
+				'add_attachment_to_email',
+			),
+			10,
+			3
+		);
+
+		add_action('phpmailer_init', array($this, 'phpmailer_init'));
+	}
+
+	/**
+	 * @param PHPMailer $phpmailer
+	 *
+	 * @return void
+	 */
+	public function phpmailer_init($phpmailer) {
+		foreach ($phpmailer->getAttachments() as $attachment) {
+			if ($attachment[2] === 'qr-code.png') {
+				$phpmailer->addEmbeddedImage($attachment[0], 'qr-code.png', 'qr-code.png', 'base64', 'image/png', 'inline');
+			}
+		}
 	}
 
 	/**
@@ -47,36 +73,62 @@ class Order extends Instance {
 	 * @return void
 	 */
 	public function add_data_to_email( $order, $sent_to_admin, $plain_text, $email ) {
-
-		if ( ! $order->get_meta( '_invoice_number' ) ) {
+		$invoice_id = $order->get_meta( '_invoice_number' );
+		if ( ! $invoice_id ) {
 			// we don't have fiscalisation data, so we skip this part
 			return;
 		}
-		$invoice_id = $order->get_meta( '_invoice_number' );
+
+		$jir = get_post_meta( $invoice_id, $this->slug . '_jir', true );
+		if ($jir) {
+			//return;
+		}
 		if ( $plain_text ) {
-			echo 'JIR: ' . get_post_meta( $invoice_id, $this->slug . '_jir' ) . "\n";
-			echo 'ZKI: ' . $order->get_meta( $invoice_id, $this->slug . '_zki' ) . "\n";
-			echo 'URL za provjeru: ' . $order->get_meta( $invoice_id, $this->slug . '_qr_code_link' );
+			echo 'JIR: ' . $jir . "\n";
+			echo 'ZKI: ' . get_post_meta( $invoice_id, $this->slug . '_zki', true ) . "\n";
+			echo 'URL za provjeru: ' . get_post_meta( $invoice_id, $this->slug . '_qr_code_link', true );
 		} else {
 			$url = get_post_meta( $invoice_id, $this->slug . '_qr_code_link', true );
-			if ( strlen( $url ) ) {
-				$qr = new QrCode( $url, 200, 200 );
-				?>
-				<p>
-					Račun broj: <?php printf( '%s/%s/%s', get_post_meta( $invoice_id, '_invoice_number', true ), get_option( $this->slug . '_business_area' ), get_option( $this->slug . '_device_number' ) ); ?>
-					<br>
-					JIR: <?php echo get_post_meta( $invoice_id, $this->slug . '_jir', true ); ?>
-					<br>
-					ZKI: <?php echo get_post_meta( $invoice_id, $this->slug . '_zki', true ); ?>
-					<br>
-					<a href="<?php echo $url; ?>" target="_blank">Provjerite svoj račun ovdje.</a>
-					<br>
-					<img
-						src="data:image/png;base64,<?php echo base64_encode( $qr->getPngData() ); ?>">--
-				</p>
-				<?php
-			}
+			?>
+			<p>
+				Račun broj: <?php printf( '%s/%s/%s', get_post_meta( $invoice_id, '_invoice_number', true ), get_option( $this->slug . '_business_area' ), get_option( $this->slug . '_device_number' ) ); ?>
+				<br>
+				JIR: <?php echo get_post_meta( $invoice_id, $this->slug . '_jir', true ); ?>
+				<br>
+				ZKI: <?php echo get_post_meta( $invoice_id, $this->slug . '_zki', true ); ?>
+				<br>
+				<a href="<?php echo $url; ?>" target="_blank">Provjerite svoj račun ovdje.</a>
+				<br>
+				<img
+					src="cid:qr-code.png">
+			</p>
+			<?php
 		}
+	}
+
+	function add_attachment_to_email($attachments , $email_id, $order) {
+		if ($email_id === 'customer_invoice') {
+			global $wp_filesystem;
+			require_once ( ABSPATH . '/wp-admin/includes/file.php' );
+			WP_Filesystem();
+			$invoice_id = $order->get_meta( '_invoice_number' );
+			$url = get_post_meta( $invoice_id, $this->slug . '_qr_code_link', true );
+			$jir = get_post_meta( $invoice_id, $this->slug . '_jir', true );
+			if (!$url) {
+				return $attachments;
+			}
+			$qr = new QrCode( $url, 200, 200 );
+			$png = $qr->getPngData();
+			if ( !$wp_filesystem->exists( WP_CONTENT_DIR . '/uploads/neznam_racuni/' ) ) {
+				$wp_filesystem->mkdir( WP_CONTENT_DIR . '/uploads/neznam_racuni/' );
+			}
+			if (!$wp_filesystem->exists( WP_CONTENT_DIR . '/uploads/neznam_racuni/'. $jir .'.png' )) {
+				$wp_filesystem->put_contents( WP_CONTENT_DIR . '/uploads/neznam_racuni/'. $jir .'.png', $png );
+			}
+
+			$attachments['qr-code.png'] = WP_CONTENT_DIR . '/uploads/neznam_racuni/'. $jir .'.png';
+		}
+		return $attachments;
 	}
 
 	/**
@@ -109,8 +161,10 @@ class Order extends Instance {
 		$area           = get_option( $this->slug . '_business_area' );
 		$device         = get_option( $this->slug . '_device_number' );
 		$invoice_format = get_option( $this->slug . '_invoice_format', '%s/%s/%s' );
+		$sandbox = !(get_option( $this->slug . '_sandbox', 'no' ) === 'no');
 		// get sequential number for invoice
-		$invoice_number = Invoice::instance()->generateInvoiceNumber( $order->get_date_paid()->format( 'Y' ) );
+		// use the current year
+		$invoice_number = Invoice::instance()->generateInvoiceNumber( date('Y'), $sandbox );
 		// create new invoice, store data for invoice
 		$id = wp_insert_post(
 			array(
@@ -121,6 +175,9 @@ class Order extends Instance {
 		);
 		add_post_meta( $id, '_order_id', $order->get_id() );
 		add_post_meta( $id, '_invoice_number', $invoice_number );
+		if ($sandbox) {
+			add_post_meta( $id, '_sandbox', true );
+		}
 		Invoice::instance()->processOrder( $order, $id );
 
 		Invoice::instance()->processFiscal( $id, $order );

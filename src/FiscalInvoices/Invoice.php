@@ -199,15 +199,16 @@ class Invoice extends Instance {
 		$area             = get_option( $this->slug . '_business_area' );
 		$device           = get_option( $this->slug . '_device_number' );
 		$invoice_format   = get_option( $this->slug . '_invoice_format', '%s/%s/%s' );
+		$sandbox = !(get_option( $this->slug . '_sandbox', 'no' ) === 'no');
 		// get sequential number for invoice
-		$invoice_number = self::instance()->generateInvoiceNumber( date( 'Y' ) );
+		$invoice_number = self::instance()->generateInvoiceNumber( date( 'Y' ), $sandbox );
 		// create new invoice, store data for invoice
 		$id = wp_insert_post(
 			array(
 				'post_type'    => 'neznam_invoice',
 				'post_title'   => apply_filters( $this->slug . '_invoice_format', sprintf( $invoice_format, $invoice_number, $area, $device ), $invoice_number, $area, $device ),
 				'post_status'  => 'publish',
-				'post_content' => json_encode( $content ),
+				'post_content' => maybe_serialize( $content ),
 			)
 		);
 		add_post_meta( $id, '_invoice_number', $invoice_number );
@@ -221,7 +222,7 @@ class Invoice extends Instance {
 	 *
 	 * @return int
 	 */
-	public function generateInvoiceNumber( $year ) {
+	public function generateInvoiceNumber( $year, $sandbox = false ) {
 		// get last number in year of order
 		$q = new \WP_Query(
 			array(
@@ -234,6 +235,12 @@ class Invoice extends Instance {
 				'orderby'             => 'meta_value_num',
 				'meta_key'            => '_invoice_number',
 				'order'               => 'desc',
+				'meta_query' => [
+					[
+						'key' => '_sandbox',
+						'compare' => $sandbox ? 'EXISTS' : 'NOT EXISTS'
+					]
+				]
 			)
 		);
 		if ( $q->have_posts() ) {

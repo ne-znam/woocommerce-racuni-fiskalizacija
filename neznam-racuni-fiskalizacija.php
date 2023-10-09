@@ -7,7 +7,7 @@
  * Author URI:      https://nezn.am
  * Text Domain:     neznam_racuni_fiskalizacija
  * Domain Path:     /languages
- * Version:         0.1.0
+ * Version:         0.3.0
  */
 
 defined( 'ABSPATH' ) || exit;
