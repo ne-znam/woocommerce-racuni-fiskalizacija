@@ -2,7 +2,6 @@
 
 namespace NeZnam\FiscalInvoices;
 
-
 use Exception;
 use Nticaric\Fiskalizacija\Fiskalizacija;
 use WC_Admin_Settings;
@@ -10,39 +9,42 @@ use WC_Admin_Settings;
 class Admin extends Instance {
 
 	public function __construct() {
-		add_filter( 'woocommerce_get_sections_tax', [ $this, 'add_section' ] );
-		add_filter( 'woocommerce_get_settings_tax', [ $this, 'all_settings' ], 10, 2 );
-		add_filter( 'woocommerce_admin_settings_sanitize_option_' . $this->slug . '_cert_path', [ $this, 'validate_cert' ], 10, 3 );
-		add_filter( 'woocommerce_admin_settings_sanitize_option_' . $this->slug . '_cert_password', [ $this, 'validate_cert_pass' ], 10, 3 );
-		add_filter( 'woocommerce_admin_settings_sanitize_option_' . $this->slug . '_company_oib', [ $this, 'validate_oib' ], 10, 3 );
-		add_filter( 'woocommerce_admin_settings_sanitize_option_' . $this->slug . '_operator_oib', [ $this, 'validate_oib' ], 10, 3 );
-		add_filter( 'plugin_action_links_neznam-racuni-fiskalizacija/neznam-racuni-fiskalizacija.php', [$this, 'settings_link'], 10, 1 );
-		add_filter( 'woocommerce_order_actions', [$this, 'order_actions'], 10, 2 );
-		add_action( 'woocommerce_order_action_' . $this->slug . '_get_invoice', [$this, 'do_order_action'], 10, 1);
+		add_filter( 'woocommerce_get_sections_tax', array( $this, 'add_section' ) );
+		add_filter( 'woocommerce_get_settings_tax', array( $this, 'all_settings' ), 10, 2 );
+		add_filter( 'woocommerce_admin_settings_sanitize_option_' . $this->slug . '_cert_path', array( $this, 'validate_cert' ), 10, 3 );
+		add_filter( 'woocommerce_admin_settings_sanitize_option_' . $this->slug . '_cert_password', array( $this, 'validate_cert_pass' ), 10, 3 );
+		add_filter( 'woocommerce_admin_settings_sanitize_option_' . $this->slug . '_company_oib', array( $this, 'validate_oib' ), 10, 3 );
+		add_filter( 'woocommerce_admin_settings_sanitize_option_' . $this->slug . '_operator_oib', array( $this, 'validate_oib' ), 10, 3 );
+		add_filter( 'plugin_action_links_neznam-racuni-fiskalizacija/neznam-racuni-fiskalizacija.php', array( $this, 'settings_link' ), 10, 1 );
+		add_filter( 'woocommerce_order_actions', array( $this, 'order_actions' ), 10, 2 );
+		add_action( 'woocommerce_order_action_' . $this->slug . '_get_invoice', array( $this, 'do_order_action' ), 10, 1 );
 	}
 
-	function do_order_action($order) {
-		$c = Order::instance();
-		$id = $c->process_order($order);
-		wp_redirect(get_edit_post_link($id));
+	function do_order_action( $order ) {
+		$c  = Order::instance();
+		$id = $c->process_order( $order );
+		wp_redirect( get_edit_post_link( $id, true ) );
 		exit();
 	}
 
-	function order_actions($actions, $order) {
-		$actions[$this->slug . '_get_invoice'] = __('Izdaj fiskalni račun', $this->slug);
+	function order_actions( $actions, $order ) {
+		$actions[ $this->slug . '_get_invoice' ] = __( 'Izdaj fiskalni račun', $this->slug );
 
 		return $actions;
 	}
 
 	function settings_link( $links ) {
 		// Build and escape the URL.
-		$url = esc_url( add_query_arg([
-			'page' => 'wc-settings',
-			'tab' => 'tax',
-			'section' => $this->slug
-		],
-			get_admin_url() . 'admin.php'
-		) );
+		$url = esc_url(
+			add_query_arg(
+				array(
+					'page'    => 'wc-settings',
+					'tab'     => 'tax',
+					'section' => $this->slug,
+				),
+				get_admin_url() . 'admin.php'
+			)
+		);
 		// Create the link.
 		$settings_link = "<a href='$url'>" . __( 'Postavke', $this->slug ) . '</a>';
 		// Adds the link to the end of the array.
@@ -61,15 +63,15 @@ class Admin extends Instance {
 	function all_settings( $settings, $current_section ) {
 		/**
 		 * Check the current section is what we want
-		 **/
-		if ( $current_section == $this->slug ) {
-			$settings_invoices = array();
+		 */
+		if ( $current_section === $this->slug ) {
+			$settings_invoices   = array();
 			$settings_invoices[] = array(
 				'name'
-				       => __( 'Postavke za fiskalizaciju', $this->slug ),
+						=> __( 'Postavke za fiskalizaciju', $this->slug ),
 				'type' => 'title',
 				'desc' => __( 'Ovdje možete namjestiti sve postavke vezane uz fiskalizaciju', $this->slug ),
-				'id'   => $this->slug . '_basic'
+				'id'   => $this->slug . '_basic',
 			);
 			// Add text field option
 			$settings_invoices[] = array(
@@ -95,7 +97,7 @@ class Admin extends Instance {
 				'id'       => $this->slug . '_business_area',
 				'type'     => 'text',
 				'desc'     => __( 'Unesite oznaku poslovnog prostora koji ste registrirali u PP', $this->slug ),
-				'default'  => 'POSL1'
+				'default'  => 'POSL1',
 			);
 			$settings_invoices[] = array(
 				'name'     => __( 'Oznaka uređaja', $this->slug ),
@@ -110,10 +112,9 @@ class Admin extends Instance {
 				'desc_tip' => __( 'Unesite željeni izgled broja računa', $this->slug ),
 				'id'       => $this->slug . '_invoice_format',
 				'type'     => 'text',
-				'desc'     => __( 'Unesite željeni izgled broja računa za sprintf("%s/%s/%s", broj racuna, oznaka poslovnog prostora, oznaka uredaja)', $this->slug ),
-				'default'  => '%s/%s/%s'
+				'desc'     => __( 'Unesite željeni izgled broja računa za sprintf("%1$s/%2$s/%3$s", broj racuna, oznaka poslovnog prostora, oznaka uredaja)', $this->slug ),
+				'default'  => '%s/%s/%s',
 			);
-
 
 			$settings_invoices[] = array(
 				'name'     => __( 'OIB webshopa', $this->slug ),
@@ -137,19 +138,19 @@ class Admin extends Instance {
 				'id'       => $this->slug . '_sandbox',
 				'type'     => 'checkbox',
 				'desc'     => __( 'Za korištenje demo okruženja.', $this->slug ),
-				'default'  => 1
+				'default'  => 1,
 			);
 
 			// order status
 			$statuses             = wc_get_order_statuses();
 			$statuses['manually'] = __( 'Ručno', $this->slug );
 			$settings_invoices[]  = array(
-				'title'         => 'Kada fiskalizirati',
-				'id'            => $this->slug . '_when_fis',
-				'default'       => 'manually',
-				'type'          => 'select',
+				'title'   => 'Kada fiskalizirati',
+				'id'      => $this->slug . '_when_fis',
+				'default' => 'manually',
+				'type'    => 'select',
 				'class'   => 'wc-enhanced-select',
-				'options'       => $statuses
+				'options' => $statuses,
 			);
 
 			$settings_invoices[] = array(
@@ -161,41 +162,41 @@ class Admin extends Instance {
 				'name' => __( 'Postavke za načine plaćanja', $this->slug ),
 				'type' => 'title',
 				'desc' => __( 'Uredite koje vrste plaćanja treba fiskalizirati', $this->slug ),
-				'id'   => $this->slug . '_payments'
+				'id'   => $this->slug . '_payments',
 			);
 
 			// get all active payment types
 			$gateways = new \WC_Payment_Gateways();
 			$payments = $gateways->get_available_payment_gateways();
 			/** @var \WC_Payment_Gateway $payment */
-			foreach ($payments as $payment) {
+			foreach ( $payments as $payment ) {
 				$settings_invoices[] = array(
-					'title'         => $payment->get_title(),
-					'id'            => $this->slug . '_' . $payment->id,
-					'default'       => 'N',
-					'type'          => 'select',
+					'title'   => $payment->get_title(),
+					'id'      => $this->slug . '_' . $payment->id,
+					'default' => 'N',
+					'type'    => 'select',
 					'class'   => 'wc-enhanced-select',
-					'options'       => [
+					'options' => array(
 						'N' => 'Ne fiskalizirati',
 						'T' => 'Transakcijski račun',
 						'G' => 'Gotovina',
 						'K' => 'Kartice',
 						'C' => 'Ček',
-						'O' => 'Ostalo'
-					],
+						'O' => 'Ostalo',
+					),
 				);
 			}
 
 			$settings_invoices[] = array(
 				'type' => 'sectionend',
-				'id'   => $this->slug . '_payments'
+				'id'   => $this->slug . '_payments',
 			);
 
 			return $settings_invoices;
 
 			/**
 			 * If not, return the standard settings
-			 **/
+			 */
 		} else {
 			return $settings;
 		}
@@ -212,7 +213,9 @@ class Admin extends Instance {
 	}
 
 	public function validate_cert_pass( $value, $option, $raw_value ) {
-		$certPath = $_POST[$this->slug . '_cert_path'];
+
+		$certPath = $_POST[ $this->slug . '_cert_path' ];
+
 		try {
 			$fis = new Fiskalizacija( $certPath, $value, 'TLS', false );
 			if ( ! $fis->getPrivateKey() ) {
@@ -234,24 +237,24 @@ class Admin extends Instance {
 	 * https://github.com/domagojpa/oib-validation/blob/main/PHP/oib-validation.php
 	 */
 	public function validate_oib( $oib, $option, $raw_value ) {
-		if ( strlen( $oib ) != 11 || ! is_numeric( $oib ) ) {
+		if ( 11 !== strlen( $oib ) || ! is_numeric( $oib ) ) {
 			WC_Admin_Settings::add_error( __( $option['name'] . ' nema ispravan broj znamenki', $this->slug ) );
 		}
 		$a = 10;
-		for ( $i = 0; $i < 10; $i ++ ) {
+		for ( $i = 0; $i < 10; $i++ ) {
 			$a += (int) $oib[ $i ];
 			$a %= 10;
-			if ( $a == 0 ) {
+			if ( 0 === $a ) {
 				$a = 10;
 			}
 			$a *= 2;
 			$a %= 11;
 		}
 		$kontrolni = 11 - $a;
-		if ( $kontrolni == 10 ) {
+		if ( 10 === $kontrolni ) {
 			$kontrolni = 0;
 		}
-		if ( $kontrolni != intval( substr( $oib, 10, 1 ), 10 ) ) {
+		if ( $kontrolni !== intval( substr( $oib, 10, 1 ), 10 ) ) {
 			WC_Admin_Settings::add_error( __( $option['name'] . ' nije ispravan', $this->slug ) );
 		}
 

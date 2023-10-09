@@ -20,61 +20,61 @@ class Invoice extends Instance {
 	 * @var WC_Order $order
 	 * @var int $invoice_id
 	 */
-	public function processOrder($order, $invoice_id) {
+	public function processOrder( $order, $invoice_id ) {
 		// save all items, quantities, unit prices, taxes, totals
 		// save all totals, foreach tax, and total
 		// special notes for invoice
 		// billing address
-		$content = [
-			'line_items' => [],
-			'note' => $order->get_customer_note(),
-			'billing_address' => [
-				'first_line' => $order->get_billing_address_1(),
+		$content = array(
+			'line_items'      => array(),
+			'note'            => $order->get_customer_note(),
+			'billing_address' => array(
+				'first_line'  => $order->get_billing_address_1(),
 				'second_line' => $order->get_billing_address_2(),
-				'postcode' => $order->get_billing_postcode(),
-				'city' => $order->get_billing_city(),
-				'state' => $order->get_billing_state(),
-				'country' => $order->get_billing_country(),
-				'company' => $order->get_billing_company()
-			],
-			'date' => date('U'),
-		];
+				'postcode'    => $order->get_billing_postcode(),
+				'city'        => $order->get_billing_city(),
+				'state'       => $order->get_billing_state(),
+				'country'     => $order->get_billing_country(),
+				'company'     => $order->get_billing_company(),
+			),
+			'date'            => date( 'U' ),
+		);
 
-		$tax_rates        = [];
-		$_tax             = new WC_Tax();
+		$tax_rates = array();
+		$_tax      = new WC_Tax();
 		/** @var \WC_Order_Item_Product $item */
 		foreach ( $order->get_items() as $item ) {
-			$line_item = [
-				'name' => $item->get_name(),
-				'unit_price' => $item->get_product()->get_price(),
-				'quantity' => $item->get_quantity(),
-				'total' => $item->get_total(),
-				'total_tax' => $item->get_total_tax(),
+			$line_item = array(
+				'name'        => $item->get_name(),
+				'unit_price'  => $item->get_product()->get_price(),
+				'quantity'    => $item->get_quantity(),
+				'total'       => $item->get_total(),
+				'total_tax'   => $item->get_total_tax(),
 				'tax_percent' => 0,
-			];
+			);
 			if ( $item->get_tax_status() === 'taxable' ) {
 				$taxes = $_tax->get_rates( $item->get_tax_class() );
 				$tax   = array_shift( $taxes );
-				if ($tax) {
+				if ( $tax ) {
 					if ( ! isset( $tax_rates[ $tax['rate'] ] ) ) {
-						$tax_rates[ $tax['rate'] ] = [
+						$tax_rates[ $tax['rate'] ] = array(
 							'base'    => 0,
 							'tax'     => 0,
 							'percent' => $tax['rate'],
-						];
+						);
 					}
 					$tax_rates[ $tax['rate'] ]['base'] += $item->get_total();
 					$tax_rates[ $tax['rate'] ]['tax']  += $item->get_total_tax();
-					$line_item['tax_percent']          = $tax['rate'];
+					$line_item['tax_percent']           = $tax['rate'];
 				}
 			}
-			if ($item->get_tax_status() === 'none') {
-				if (!isset($tax_rates[0]) || !$tax_rates[0]) {
-					$tax_rates[0] = [
-						'base' => 0,
-						'tax' => 0,
+			if ( $item->get_tax_status() === 'none' ) {
+				if ( ! isset( $tax_rates[0] ) || ! $tax_rates[0] ) {
+					$tax_rates[0] = array(
+						'base'    => 0,
+						'tax'     => 0,
 						'percent' => 0,
-					];
+					);
 				}
 				$tax_rates[0]['base'] += $item->get_total();
 				$tax_rates[0]['tax']  += $item->get_total_tax();
@@ -84,18 +84,23 @@ class Invoice extends Instance {
 		}
 
 		// add shipping
-		if ($order->set_shipping_total('edit') > 0) {
-			$rates                              = $_tax->get_shipping_tax_rates();
-			$rate                               = array_shift( $rates );
+		if ( $order->set_shipping_total( 'edit' ) > 0 ) {
+			$rates                               = $_tax->get_shipping_tax_rates();
+			$rate                                = array_shift( $rates );
 			$tax_rates[ $rate['rate'] ]['base'] += (float) $order->get_shipping_total( 'edit' );
 			$tax_rates[ $rate['rate'] ]['tax']  += (float) $order->get_shipping_tax( 'edit' );
 		}
 		$content['tax_rates'] = $tax_rates;
-		$content['total'] = $order->get_total();
-		//payment method
-		$payment_method = $order->get_payment_method();
-		$content['payment_method'] = get_option($this->slug . '_' . $payment_method);
-		wp_update_post(['ID' => $invoice_id, 'post_content' => json_encode($content)]);
+		$content['total']     = $order->get_total();
+		// payment method
+		$payment_method            = $order->get_payment_method();
+		$content['payment_method'] = get_option( $this->slug . '_' . $payment_method );
+		wp_update_post(
+			array(
+				'ID'           => $invoice_id,
+				'post_content' => json_encode( $content ),
+			)
+		);
 	}
 
 	/**
@@ -108,9 +113,9 @@ class Invoice extends Instance {
 			return;
 		}
 		// process the fiscalization
-		$invoice = get_post($post_id);
-		$content = json_decode($invoice->post_content, true);
-		if ($content['payment_method'] === 'N') {
+		$invoice = get_post( $post_id );
+		$content = json_decode( $invoice->post_content, true );
+		if ( $content['payment_method'] === 'N' ) {
 			// user doesn't want to fiscal
 			return;
 		}
@@ -123,7 +128,7 @@ class Invoice extends Instance {
 		$operator_oib = get_option( $this->slug . '_operator_oib' );
 		try {
 			$fis        = new Fiskalizacija( $certPath, $certPass, 'TLS', $sandbox );
-			$billNumber = new BillNumber( get_post_meta($post_id, '_invoice_number', true), $area, $device );
+			$billNumber = new BillNumber( get_post_meta( $post_id, '_invoice_number', true ), $area, $device );
 
 			$listPnp          = apply_filters( $this->slug . '_porez_na_potrosnju', array() );
 			$listPdv          = array();
@@ -137,7 +142,7 @@ class Invoice extends Instance {
 			$bill = new Bill();
 			$bill->setOib( $company_oib );
 			$bill->setHavePDV( true );
-			$bill->setNoteOfOrder( "N" );
+			$bill->setNoteOfOrder( 'N' );
 			$bill->setDateTime( date( 'd.m.Y\TH:i:s', $content['date'] ) );
 			$bill->setBillNumber( $billNumber );
 			$bill->setListPDV( $listPdv );
@@ -166,46 +171,48 @@ class Invoice extends Instance {
 			$DOMResponse = new DOMDocument();
 			$DOMResponse->loadXML( $res );
 			$jir = $DOMResponse->getElementsByTagName( 'Jir' )->item( 0 )->textContent;
-			update_post_meta( $post_id,  $this->slug . '_jir', $jir );
-			update_post_meta( $post_id,  $this->slug . '_zki', $bill->securityCode );
+			update_post_meta( $post_id, $this->slug . '_jir', $jir );
+			update_post_meta( $post_id, $this->slug . '_zki', $bill->securityCode );
 			$created_at = date( 'Ymd_Hi', $content['date'] );
 			$total      = number_format( $total, 2, '', '' );
 			update_post_meta( $post_id, $this->slug . '_qr_code_link', "https://porezna.gov.hr/rn?jir=$jir&datv=$created_at&izn=$total", true );
-			if ($order) {
-				$order->add_meta_data('_invoice_number', $post_id );
+			if ( $order ) {
+				$order->add_meta_data( '_invoice_number', $post_id );
 				$order->add_order_note( 'Fiskalizacija uspješno obavljena - ' . $billNumber->numberNoteBill . '/' . $billNumber->noteOfBusinessArea . '/' . $billNumber->noteOfExcangeDevice );
 				$order->save();
 			}
 		} catch ( Exception $e ) {
-			if ($order) {
+			if ( $order ) {
 				$order->add_order_note( __( 'Fiskalizacija nije uspjela s greškom: ' . $e->getMessage(), $this->slug ) );
 			}
 		}
 	}
 
 	public function createStorno( $post_id ) {
-		$post = get_post($post_id);
-		$content = json_decode($post->post_content, true);
-		foreach ($content['tax_rates'] as &$tax_rate) {
+		$post    = get_post( $post_id );
+		$content = json_decode( $post->post_content, true );
+		foreach ( $content['tax_rates'] as &$tax_rate ) {
 			$tax_rate['base'] = -$tax_rate['base'];
-			$tax_rate['tax'] = -$tax_rate['tax'];
+			$tax_rate['tax']  = -$tax_rate['tax'];
 		}
 		$content['total'] = -$content['total'];
-		$area         = get_option( $this->slug . '_business_area' );
-		$device       = get_option( $this->slug . '_device_number' );
-		$invoice_format = get_option( $this->slug . '_invoice_format', '%s/%s/%s');
+		$area             = get_option( $this->slug . '_business_area' );
+		$device           = get_option( $this->slug . '_device_number' );
+		$invoice_format   = get_option( $this->slug . '_invoice_format', '%s/%s/%s' );
 		// get sequential number for invoice
-		$invoice_number = Invoice::instance()->generateInvoiceNumber( date('Y') );
+		$invoice_number = self::instance()->generateInvoiceNumber( date( 'Y' ) );
 		// create new invoice, store data for invoice
-		$id = wp_insert_post([
-			'post_type' => 'neznam_invoice',
-			'post_title' => apply_filters($this->slug . '_invoice_format', sprintf($invoice_format, $invoice_number, $area, $device), $invoice_number, $area, $device),
-			'post_status' => 'publish',
-			'post_content' => json_encode($content),
-		]);
-		add_post_meta($id, '_invoice_number', $invoice_number);
-		add_post_meta($id, '_storno', $post_id);
-		$this->processFiscal($id);
+		$id = wp_insert_post(
+			array(
+				'post_type'    => 'neznam_invoice',
+				'post_title'   => apply_filters( $this->slug . '_invoice_format', sprintf( $invoice_format, $invoice_number, $area, $device ), $invoice_number, $area, $device ),
+				'post_status'  => 'publish',
+				'post_content' => json_encode( $content ),
+			)
+		);
+		add_post_meta( $id, '_invoice_number', $invoice_number );
+		add_post_meta( $id, '_storno', $post_id );
+		$this->processFiscal( $id );
 		return $id;
 	}
 
@@ -214,23 +221,25 @@ class Invoice extends Instance {
 	 *
 	 * @return int
 	 */
-	public function generateInvoiceNumber( $year) {
-		//get last number in year of order
-		$q       = new \WP_Query( [
-			'post_status'         => 'any',
-			'posts_per_page'      => 1,
-			'no_found_rows'       => true,
-			'ignore_sticky_posts' => true,
-			'post_type'           => 'neznam_invoice',
-			'year'                => $year,
-			'orderby'             => 'meta_value_num',
-			'meta_key'            => '_invoice_number',
-			'order'               => 'desc',
-		] );
+	public function generateInvoiceNumber( $year ) {
+		// get last number in year of order
+		$q = new \WP_Query(
+			array(
+				'post_status'         => 'any',
+				'posts_per_page'      => 1,
+				'no_found_rows'       => true,
+				'ignore_sticky_posts' => true,
+				'post_type'           => 'neznam_invoice',
+				'year'                => $year,
+				'orderby'             => 'meta_value_num',
+				'meta_key'            => '_invoice_number',
+				'order'               => 'desc',
+			)
+		);
 		if ( $q->have_posts() ) {
 			$q->the_post();
 			$receipt_number = (int) get_post_meta( $q->post->ID, '_invoice_number', true );
-			$receipt_number ++;
+			++$receipt_number;
 		} else {
 			$receipt_number = 1;
 		}

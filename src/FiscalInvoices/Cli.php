@@ -21,5 +21,4 @@ class Cli extends WP_CLI_Command {
 
 		return self::$_instance;
 	}
-
 }

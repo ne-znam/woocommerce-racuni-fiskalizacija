@@ -4,7 +4,7 @@
 <head>
 	<meta charset="UTF-8">
 	<!--  Meta stuff -->
-	<title>Račun <?php echo $invoice_number ?></title>
+	<title>Račun <?php echo $invoice_number; ?></title>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link
@@ -19,35 +19,36 @@
 		<div class="full racun-header bottom-margin">
 
 			<div class="float-left right-margin half">
-				<?php if (has_custom_logo()) {
+				<?php
+				if ( has_custom_logo() ) {
 					the_custom_logo();
 					?>
 				<?php } ?>
 			</div>
 			<div class="float-right half font-x2">
-				<p class="full bold"><?php echo $business_data['name'] ?></p>
-				<p class="full"><?php echo $business_data['address1']  ?></p>
-				<p class="full"><?php echo $business_data['address2']  ?></p>
-				<p class="full"><?php echo $business_data['post_code']  ?> <?php echo $business_data['city'] ?></p>
-				<p class="full">OIB: <?php echo $business_data['oib'] ?></p>
+				<p class="full bold"><?php echo $business_data['name']; ?></p>
+				<p class="full"><?php echo $business_data['address1']; ?></p>
+				<p class="full"><?php echo $business_data['address2']; ?></p>
+				<p class="full"><?php echo $business_data['post_code']; ?> <?php echo $business_data['city']; ?></p>
+				<p class="full">OIB: <?php echo $business_data['oib']; ?></p>
 			</div>
 		</div>
 		<div class="full half float-left racun-info">
 			<div class="full">
-				<div class="float-left two-thirds bold">RAČUN broj: </div><div class="float-left third bold"><?php echo $invoice_number ?></div>
-				<div class="float-left two-thirds">Datum izdavanja računa: </div><div class="float-left  third bold"><?php echo $meta[$slug . '_created_at'] ?></div>
-				<div class="float-left two-thirds">Mjesto izdavanja: </div><div class="float-left  third bold"><?php echo $business_data['city'] ?></div>
-				<div class="float-left two-thirds">OIB: </div><div class="float-left  third bold"><?php echo $business_data['oib'] ?></div>
+				<div class="float-left two-thirds bold">RAČUN broj: </div><div class="float-left third bold"><?php echo $invoice_number; ?></div>
+				<div class="float-left two-thirds">Datum izdavanja računa: </div><div class="float-left  third bold"><?php echo $meta[ $slug . '_created_at' ]; ?></div>
+				<div class="float-left two-thirds">Mjesto izdavanja: </div><div class="float-left  third bold"><?php echo $business_data['city']; ?></div>
+				<div class="float-left two-thirds">OIB: </div><div class="float-left  third bold"><?php echo $business_data['oib']; ?></div>
 			</div>
 		</div>
 		<div class="half float-left half racun-client">
 			<div class="float-left two-thirds bold">Klijent: </div>
 			<div class="float-left third">
-				<p class="full"><?php echo $content['billing_address']['name'] ?></p>
-				<p class="full"><?php echo $content['billing_address']['first_line'] ?></p>
-				<p class="full"><?php echo $content['billing_address']['second_line'] ?></p>
-				<p class="full"><?php echo $content['billing_address']['postcode'] ?> <?php echo $content['billing_address']['city'] ?></p>
-				<p class="full"><?php echo $content['billing_address']['country'] ?></p>
+				<p class="full"><?php echo $content['billing_address']['name']; ?></p>
+				<p class="full"><?php echo $content['billing_address']['first_line']; ?></p>
+				<p class="full"><?php echo $content['billing_address']['second_line']; ?></p>
+				<p class="full"><?php echo $content['billing_address']['postcode']; ?> <?php echo $content['billing_address']['city']; ?></p>
+				<p class="full"><?php echo $content['billing_address']['country']; ?></p>
 			</div>
 		</div>
 		<div class="full racun-table">
@@ -57,37 +58,37 @@
 				<div class="float-left fifty">Neto cijena</div>
 				<div class="float-left tenth">Ukupno neto</div>
 			</div>
-			<?php foreach ($content['line_items'] as $item) { ?>
+			<?php foreach ( $content['line_items'] as $item ) { ?>
 			<div class="full table-row bottom-border center-text stretch">
-				<div class="float-left thirty"><?php echo $item['name'] ?></div>
-				<div class="float-left tenth"><?php echo $item['quantity'] ?></div>
-				<div class="float-left fifty"><?php echo $item['unit_price'] ?></div>
-				<div class="float-left tenth right-align"><?php echo $item['total'] ?></div>
+				<div class="float-left thirty"><?php echo $item['name']; ?></div>
+				<div class="float-left tenth"><?php echo $item['quantity']; ?></div>
+				<div class="float-left fifty"><?php echo $item['unit_price']; ?></div>
+				<div class="float-left tenth right-align"><?php echo $item['total']; ?></div>
 			</div>
 			<?php } ?>
 			<div class="full table-row center-text">
 				<div class="third float-right">
-					<div class="float-left two-thirds bold">Osnovica: </div><div class="float-right third bold right-align"><?php echo $content['total'] ?></div>
+					<div class="float-left two-thirds bold">Osnovica: </div><div class="float-right third bold right-align"><?php echo $content['total']; ?></div>
 					<?php foreach ( $content['tax_rates'] as $tax_rate ) { ?>
-					<div class="float-left two-thirds bold"><?php echo  $tax_rate['label'] ?> <?php echo $tax_rate['percent'] ?>%: </div><div class="float-right third bold right-align"><?php echo $tax_rate['tax'] ?></div>
+					<div class="float-left two-thirds bold"><?php echo $tax_rate['label']; ?> <?php echo $tax_rate['percent']; ?>%: </div><div class="float-right third bold right-align"><?php echo $tax_rate['tax']; ?></div>
 					<?php } ?>
 				</div>
 			</div>
 			<div class="full red-row table-row bold center-text">
 				<div class="third float-right">
-					<div class="float-left two-thirds bold">UKUPNO: </div><div class="float-right third bold right-align"><?php echo $content['total'] ?></div>
+					<div class="float-left two-thirds bold">UKUPNO: </div><div class="float-right third bold right-align"><?php echo $content['total']; ?></div>
 				</div>
 			</div>
 		</div>
 		<div class="full" style="margin-top: 30px;">
-			<p class="full">Račun izrađen: Račun je automatski generiran putem aplikacije <?php echo get_bloginfo('name'); ?></p>
-			<p class="full">Odgovorna osoba: <?php echo $business_data['operator'] ?></p>
+			<p class="full">Račun izrađen: Račun je automatski generiran putem aplikacije <?php echo get_bloginfo( 'name' ); ?></p>
+			<p class="full">Odgovorna osoba: <?php echo $business_data['operator']; ?></p>
 			<p class="full">Plaćanje: Kartica</p>
-			<p>ZKI: <?php echo $meta[$slug . '_zki'] ?></p>
-			<p>JIR: <?php echo $meta[$slug . '_jri'] ?></p>
-			<p style="margin: 10px;"><img src="data:image/png;base64,<?php echo  \Milon\Barcode\Facades\DNS2DFacade::getBarcodePNG($meta[$slug . '_qr_code_link'], 'QRCODE') ?>"></p>
+			<p>ZKI: <?php echo $meta[ $slug . '_zki' ]; ?></p>
+			<p>JIR: <?php echo $meta[ $slug . '_jri' ]; ?></p>
+			<p style="margin: 10px;"><img src="data:image/png;base64,<?php echo \Milon\Barcode\Facades\DNS2DFacade::getBarcodePNG( $meta[ $slug . '_qr_code_link' ], 'QRCODE' ); ?>"></p>
 		</div>
-		<p style="font-size: 10px; margin-top: 10px"><?php echo $content['notes'] ?></p>
+		<p style="font-size: 10px; margin-top: 10px"><?php echo $content['notes']; ?></p>
 	</div>
 </div>
 <style>

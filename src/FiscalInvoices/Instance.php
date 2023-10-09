@@ -4,13 +4,12 @@ namespace NeZnam\FiscalInvoices;
 
 abstract class Instance {
 
-	private static $instances = [];
+	private static $instances = array();
 
 	public $slug = 'neznam_racuni_fiskalizacija';
 
 	/**
 	 * Constructor
-	 *
 	 */
 	abstract protected function __construct();
 

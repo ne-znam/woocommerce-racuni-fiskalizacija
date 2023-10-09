@@ -17,5 +17,3 @@ class Init extends Instance {
 		}
 	}
 }
-
-
