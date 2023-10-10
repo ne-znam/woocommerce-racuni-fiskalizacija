@@ -12,8 +12,6 @@ class Init extends Instance {
 		Admin::instance();
 		Order::instance();
 		PostType::instance();
-		if ( defined( 'WP_CLI' ) && WP_CLI ) {
-			Cli::instance();
-		}
+		Emails::instance();
 	}
 }
