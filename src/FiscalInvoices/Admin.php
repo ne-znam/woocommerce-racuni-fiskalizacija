@@ -161,7 +161,7 @@ class Admin extends Instance {
 			$settings_invoices[] = array(
 				'name' => __( 'Postavke za načine plaćanja', $this->slug ),
 				'type' => 'title',
-				'desc' => __( 'Uredite koje vrste plaćanja treba fiskalizirati', $this->slug ),
+				'desc' => __( 'Uredite za koje vrste plaćanja treba izdati račun i fiskalizirati. ', $this->slug ),
 				'id'   => $this->slug . '_payments',
 			);
 
@@ -171,7 +171,23 @@ class Admin extends Instance {
 			/** @var \WC_Payment_Gateway $payment */
 			foreach ( $payments as $payment ) {
 				$settings_invoices[] = array(
-					'title'   => $payment->get_title(),
+					'name' => $payment->get_title(),
+					'type' => 'title',
+					'id'   => $this->slug . '_payments_'.$payment->id,
+				);
+				$settings_invoices[] = array(
+					'title'   => 'Izdati račun:',
+					'id'      => $this->slug . '_' . $payment->id . '_invoice',
+					'default' => 'no',
+					'type'    => 'select',
+					'class'   => 'wc-enhanced-select',
+					'options' => array(
+						'no' => 'ne',
+						'da' => 'da',
+					),
+				);
+				$settings_invoices[] = array(
+					'title'   => 'Fiskalizirati:',
 					'id'      => $this->slug . '_' . $payment->id,
 					'default' => 'N',
 					'type'    => 'select',
@@ -185,6 +201,12 @@ class Admin extends Instance {
 						'O' => 'Ostalo',
 					),
 				);
+
+				$settings_invoices[] = array(
+					'type' => 'sectionend',
+					'id'   => $this->slug . '_payments_'.$payment->id,
+				);
+
 			}
 
 			$settings_invoices[] = array(

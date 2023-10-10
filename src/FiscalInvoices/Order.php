@@ -58,6 +58,11 @@ class Order extends Instance {
 	 * @return int|\WP_Error
 	 */
 	public function process_order( WC_Order $order ) {
+		$payment = $order->get_payment_method();
+		$create_invoice = !(get_option( $this->slug . '_' . $payment . '_invoice', 'no' ) === 'no');
+		if (!$create_invoice) {
+			return;
+		}
 		$area           = get_option( $this->slug . '_business_area' );
 		$device         = get_option( $this->slug . '_device_number' );
 		$invoice_format = get_option( $this->slug . '_invoice_format', '%s/%s/%s' );
