@@ -28,7 +28,6 @@ class Order extends Instance {
 			1,
 			4
 		);
-
 	}
 
 	/**

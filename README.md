@@ -26,7 +26,7 @@ Ukoliko imate sumnje da plugin ne radi dobro, prijavite [ovdje](https://github.c
 
 Da, i morate ga namjestiti u postavkama dodatka
 
-### Plugin odbija prihvatiti moj certifikat i lozinku =
+### Plugin odbija prihvatiti moj certifikat i lozinku
 
 Ako koristite noviju verziju PHPa (v8) i OpenSSLa (v3) i imate stariji certifikat, onda je moguće da plugin neće prihvatiti vaš certifikat.
 Namjestite ove postavke u /etc/ssl/openssl.cnf
@@ -43,11 +43,11 @@ activate = 1
 activate = 1
 ```
 
-### Kome se mogu obratiti za pomoć?  =
+### Kome se mogu obratiti za pomoć?
 
 Autor ovog dodatka nudi usluge savjetovanja i namještanja ovog dodatka.
 
-### Mogu li tužiti autora plugina za dobivenu kaznu od Porezne uprave? =
+### Mogu li tužiti autora plugina za dobivenu kaznu od Porezne uprave?
 
 Ne, autor se odriče bilo kakve odgovornosti za neispravno korištenje i namještanje ovog dodatka. Vlasnik webshopa i osoba koja ga je namjestila
 su same odgovorne za korištenje dodatka koje je rezultiralo kaznom.

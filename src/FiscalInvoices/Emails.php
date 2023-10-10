@@ -114,4 +114,26 @@ class Emails extends Instance {
 		}
 		return $attachments;
 	}
+
+	public function create_pdf($invoice) {
+		$invoice_id = $invoice->get_meta( '_invoice_number' );
+		if ( ! $invoice_id ) {
+			// we don't have fiscalisation data, so we skip this part
+			return;
+		}
+		$jir = get_post_meta( $invoice_id, $this->slug . '_jir', true );
+		if (!$jir) {
+			return;
+		}
+		$url = get_post_meta( $invoice_id, $this->slug . '_qr_code_link', true );
+		$qr = new QrCode( $url, 200, 200 );
+		$png = $qr->getPngData();
+		$mpdf = new \Mpdf\Mpdf();
+		$mpdf->WriteHTML('<p>Račun broj: ' . get_post_meta( $invoice_id, '_invoice_number', true ) . '</p>');
+		$mpdf->WriteHTML('<p>JIR: ' . get_post_meta( $invoice_id, $this->slug . '_jir', true ) . '</p>');
+		$mpdf->WriteHTML('<p>ZKI: ' . get_post_meta( $invoice_id, $this->slug . '_zki', true ) . '</p>');
+		$mpdf->WriteHTML('<p><a href="' . $url . '" target="_blank">Provjerite svoj račun ovdje.</a></p>');
+		$mpdf->WriteHTML('<img src="data:image/png;base64,' . base64_encode($png) . '">');
+		$mpdf->Output(WP_CONTENT_DIR . '/uploads/neznam_racuni/'. $jir .'.pdf', 'F');
+	}
 }
