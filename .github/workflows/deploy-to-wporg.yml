@@ -24,5 +24,5 @@ jobs:
       with:
         upload_url: ${{ github.event.release.upload_url }}
         asset_path: ${{ steps.deploy.outputs.zip-path }}
-        asset_name: ${{ github.event.repository.name }}.zip
+        asset_name: neznam-racuni-fiskalizacija.zip
         asset_content_type: application/zip
