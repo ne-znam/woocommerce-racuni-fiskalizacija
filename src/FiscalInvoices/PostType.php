@@ -49,7 +49,7 @@ class PostType extends Instance {
 					'read_post'          => true,
 					'delete_post'        => false,
 					'edit_posts'         => 'manage_woocommerce',
-					'edit_others_posts'  => false,
+					'edit_others_posts'  => 'manage_woocommerce',
 					'publish_posts'      => false,
 					'read_private_posts' => false,
 				),
@@ -90,13 +90,20 @@ class PostType extends Instance {
 
 	public function fiscal_data( $post ) {
 		$url = get_post_meta( $post->ID, $this->slug . '_qr_code_link', true );
+		$order_id = get_post_meta( $post->ID, '_order_id', true );
+		$content = maybe_unserialize($post->post_content);
+		?>
+		<p>
+			Invoice: <?php echo get_post_meta( $post->ID, '_invoice_number', true ); ?><br>
+			Order: <a href="<?php echo get_edit_post_link( $order_id, true ); ?>"><?php echo $order_id; ?></a></p>
+		<p>
+			Način plaćanja: <?php echo $content['payment_method']; ?>
+		</p>
+		<?php
 		if ( strlen( $url ) ) {
 			$qr       = new QrCode( $url, 200, 200 );
-			$order_id = get_post_meta( $post->ID, '_order_id', true );
 			?>
 			<p>
-				Invoice: <?php echo get_post_meta( $post->ID, '_invoice_number', true ); ?><br>
-				Order: <a href="<?php echo get_edit_post_link( $order_id, true ); ?>"><?php echo $order_id; ?></a></p>
 			<br>
 			JIR: <?php echo get_post_meta( $post->ID, $this->slug . '_jir', true ); ?>
 			<br>

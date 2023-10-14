@@ -98,7 +98,7 @@ class Invoice extends Instance {
 		wp_update_post(
 			array(
 				'ID'           => $invoice_id,
-				'post_content' => json_encode( $content ),
+				'post_content' => maybe_serialize( $content ),
 			)
 		);
 	}
@@ -114,7 +114,7 @@ class Invoice extends Instance {
 		}
 		// process the fiscalization
 		$invoice = get_post( $post_id );
-		$content = json_decode( $invoice->post_content, true );
+		$content = maybe_unserialize( $invoice->post_content );
 		if ( $content['payment_method'] === 'N' ) {
 			// user doesn't want to fiscal
 			return;
@@ -190,7 +190,7 @@ class Invoice extends Instance {
 
 	public function createStorno( $post_id ) {
 		$post    = get_post( $post_id );
-		$content = json_decode( $post->post_content, true );
+		$content = maybe_unserialize( $post->post_content );
 		foreach ( $content['tax_rates'] as &$tax_rate ) {
 			$tax_rate['base'] = -$tax_rate['base'];
 			$tax_rate['tax']  = -$tax_rate['tax'];
