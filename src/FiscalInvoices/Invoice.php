@@ -2,6 +2,7 @@
 
 namespace NeZnam\FiscalInvoices;
 
+use Dompdf\Dompdf;
 use Nticaric\Fiskalizacija\Bill\Bill;
 use Nticaric\Fiskalizacija\Bill\BillNumber;
 use Nticaric\Fiskalizacija\Bill\BillRequest;
@@ -14,7 +15,8 @@ use DOMDocument;
 
 class Invoice extends Instance {
 
-	public function __construct() {}
+	public function __construct() {
+	}
 
 	/**
 	 * @var WC_Order $order
@@ -211,8 +213,8 @@ class Invoice extends Instance {
 				'post_content' => maybe_serialize( $content ),
 			)
 		);
-		add_post_meta( $id, '_invoice_number', $invoice_number );
-		add_post_meta( $id, '_storno', $post_id );
+		update_post_meta( $id, '_invoice_number', $invoice_number );
+		update_post_meta( $id, '_storno', $post_id );
 		$this->processFiscal( $id );
 		return $id;
 	}

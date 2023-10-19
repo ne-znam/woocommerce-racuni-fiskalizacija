@@ -82,9 +82,16 @@ class Order extends Instance {
 		if ($sandbox) {
 			add_post_meta( $id, '_sandbox', true );
 		}
+		//create invoice
 		Invoice::instance()->processOrder( $order, $id );
 
+		//fiscal
 		Invoice::instance()->processFiscal( $id, $order );
+
+		// send email
+		WC()->payment_gateways();
+		WC()->shipping();
+		WC()->mailer()->customer_invoice( $order );
 		return $id;
 	}
 }

@@ -13,5 +13,6 @@ class Init extends Instance {
 		Order::instance();
 		PostType::instance();
 		Emails::instance();
+		Invoice::instance();
 	}
 }
