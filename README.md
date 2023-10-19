@@ -16,7 +16,7 @@ Ukoliko imate sumnje da plugin ne radi dobro, prijavite [ovdje](https://github.c
 
 ## Installation
 
-1. Prenesite zip kroz admin sučelje
+1. Prenesite [zip](https://github.com/ne-znam/woocommerce-racuni-fiskalizacija/releases/download/v0.5.0/neznam-racuni-fiskalizacija.zip) kroz admin sučelje ili FTP
 1. Aktivirajte dodatak kroz Dodaci sučelje u WordPressu
 1. Namjestite postavke u Postavkama
 
@@ -42,6 +42,10 @@ activate = 1
 [legacy_sect]
 activate = 1
 ```
+
+### Mogu li urediti izgled računa?
+
+Možete, samo je potrebno u direktoriju teme dodati datoteku: `woocommerce/neznam/invoice.php` i u njoj urediti izgled računa. Račun se generira uz pomoć [Dompdf](https://github.com/dompdf/dompdf).
 
 ### Kome se mogu obratiti za pomoć?
 

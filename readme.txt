@@ -4,7 +4,7 @@ Tags: racuni, fiskalizacija, porezi, hrvatska
 Requires at least: 4.5
 Tested up to: 6.4.0
 Requires PHP: 7.4
-Stable tag: 0.4.0
+Stable tag: 0.5.0
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -24,7 +24,7 @@ Ukoliko imate sumnje da plugin ne radi dobro, prijavite [ovdje](https://github.c
 
 == Installation ==
 
-1. Prenesite zip kroz admin sučelje
+1. Prenesite zip kroz admin sučelje ili FTP
 1. Aktivirajte dodatak kroz Dodaci sučelje u WordPressu
 1. Namjestite postavke u Postavkama
 
