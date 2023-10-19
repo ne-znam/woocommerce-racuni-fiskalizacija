@@ -31,6 +31,7 @@ class Emails extends Instance {
 		);
 
 		add_action('phpmailer_init', array($this, 'phpmailer_init'));
+		add_action( 'wp_mail_succeeded', array($this, 'after_sent'));
 	}
 
 	/**
@@ -45,7 +46,21 @@ class Emails extends Instance {
 			if ($attachment[2] === 'qr-code.png') {
 				$phpmailer->addEmbeddedImage($attachment[0], 'qr-code.png', 'qr-code.png', 'base64', 'image/png', 'inline');
 			} else {
-				$phpmailer->addAttachment($attachment[0], $attachment[1], $attachment[3], $attachment[4], $attachment[6]);
+				$phpmailer->addAttachment($attachment[0], $attachment[2], $attachment[3], $attachment[4], $attachment[6]);
+			}
+		}
+	}
+
+	/**
+	 * @param $mail_data
+	 *
+	 * @return void
+	 */
+	public function after_sent($mail_data) {
+		$attachments = $mail_data['attachments'];
+		foreach ($attachments as $attachment) {
+			if ($attachment[2] === 'qr-code.png' || $attachment[2] === 'racun.pdf') {
+				unlink($attachment[0]);
 			}
 		}
 	}
@@ -135,8 +150,12 @@ class Emails extends Instance {
 		$content = maybe_unserialize($invoice->post_content);
 		$qr = new QrCode( $url, 200, 200 );
 		$png = $qr->getPngData();
+		$template = locate_template('woocommerce/neznam/invoice.php');
+		if (!$template) {
+			$template = plugin_dir_path(__FILE__) . '/../../templates/invoice.php';
+		}
 		ob_start();
-		load_template(plugin_dir_path(__FILE__) . '/../../templates/invoice.php', true, [
+		load_template($template, true, [
 			'invoice' => $invoice,
 			'content' => $content,
 			'order' => $order,
