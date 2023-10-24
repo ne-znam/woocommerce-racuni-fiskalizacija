@@ -9,7 +9,6 @@ use PHPMailer\PHPMailer\PHPMailer;
 class Emails extends Instance {
 
 	public function __construct() {
-		//add_action('template_redirect', [$this, 'create_pdf']);
 		add_action(
 			'woocommerce_email_customer_details',
 			array(
