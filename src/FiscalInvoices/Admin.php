@@ -18,7 +18,52 @@ class Admin extends Instance {
 		add_filter( 'plugin_action_links_neznam-racuni-fiskalizacija/neznam-racuni-fiskalizacija.php', array( $this, 'settings_link' ), 10, 1 );
 		add_filter( 'woocommerce_order_actions', array( $this, 'order_actions' ), 10, 2 );
 		add_action( 'woocommerce_order_action_' . $this->slug . '_get_invoice', array( $this, 'do_order_action' ), 10, 1 );
+		add_action('restrict_manage_posts', array($this, 'restrict_posts'), 10);
+		add_filter('parse_query', array( $this, 'parse_query'));
+
 	}
+
+		function restrict_posts($post_type) {
+			if ('neznam_invoice' !== $post_type) {
+				return;
+			}
+			$current_v = isset($_GET['neznam_payment_method'])? $_GET['neznam_payment_method'] : '';
+			$methods = array(
+				'N' => 'Ne fiskalizirati',
+                 'T' => 'Transakcijski račun',
+                 'G' => 'Gotovina',
+                 'K' => 'Kartice',
+                 'C' => 'Ček',
+                 'O' => 'Ostalo'
+			)
+			?>
+			<select name="neznam_payment_method">
+				<option value="">Odaberi način plaćanja</option>
+				<?php foreach ($methods as $key => $method) {
+					?><option value="<?php echo $key; ?>" <?php selected($current_v, $key) ?>><?php echo $method ?></option><?php
+				}?>
+			</select>
+			<?php
+		}
+
+		function parse_query($query) {
+			global $pagenow;
+			$post_type = (isset($_GET['post_type'])) ? $_GET['post_type'] : 'post';
+			if ($post_type != 'neznam_invoice' ||  $pagenow != 'edit.php') {
+				return;
+			}
+			$method = false;
+			if ( !empty($_GET['neznam_payment_method']) ) {
+				$method = $_GET['neznam_payment_method'];
+			}
+
+			if (!$method) {
+				return;
+			}
+
+			$query->set('meta_key',  'payment_method');
+			$query->set('meta_value',  $method);
+		}
 
 	function do_order_action( $order ) {
 		$c  = Order::instance();
