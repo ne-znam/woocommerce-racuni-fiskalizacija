@@ -2,7 +2,6 @@
 
 namespace NeZnam\FiscalInvoices;
 
-use Dompdf\Dompdf;
 use Nticaric\Fiskalizacija\Bill\Bill;
 use Nticaric\Fiskalizacija\Bill\BillNumber;
 use Nticaric\Fiskalizacija\Bill\BillRequest;
@@ -15,8 +14,7 @@ use DOMDocument;
 
 class Invoice extends Instance {
 
-	public function __construct() {
-	}
+	public function __construct() {}
 
 	/**
 	 * @var WC_Order $order
@@ -123,7 +121,7 @@ class Invoice extends Instance {
 		}
 		$certPath     = get_option( $this->slug . '_cert_path' );
 		$certPass     = get_option( $this->slug . '_cert_password' );
-		$sandbox      = (bool) get_option( $this->slug . '_sandbox', false );
+		$sandbox      = (bool) !(get_option( $this->slug . '_sandbox', 'no' ) === 'no');
 		$area         = get_option( $this->slug . '_business_area' );
 		$device       = get_option( $this->slug . '_device_number' );
 		$company_oib  = get_option( $this->slug . '_company_oib' );
@@ -192,7 +190,7 @@ class Invoice extends Instance {
 
 	public function createStorno( $post_id ) {
 		$post    = get_post( $post_id );
-		$content = maybe_unserialize( $post->post_content );
+		$content = json_decode( $post->post_content, true );
 		foreach ( $content['tax_rates'] as &$tax_rate ) {
 			$tax_rate['base'] = -$tax_rate['base'];
 			$tax_rate['tax']  = -$tax_rate['tax'];
@@ -213,8 +211,8 @@ class Invoice extends Instance {
 				'post_content' => maybe_serialize( $content ),
 			)
 		);
-		update_post_meta( $id, '_invoice_number', $invoice_number );
-		update_post_meta( $id, '_storno', $post_id );
+		add_post_meta( $id, '_invoice_number', $invoice_number );
+		add_post_meta( $id, '_storno', $post_id );
 		$this->processFiscal( $id );
 		return $id;
 	}

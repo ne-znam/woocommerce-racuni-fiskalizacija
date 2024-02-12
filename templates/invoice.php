@@ -1,522 +1,388 @@
-<?php
-/**
- * @var $args array
- * @var $invoice WP_Post
- */
+<!DOCTYPE html>
+<html <?php language_attributes(); ?>>>
 
-$invoice = $args['invoice'];
-$order = $args['order'];
-?>
-<html>
 <head>
 	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<style>
-		/*! normalize.css v8.0.1 | MIT License | github.com/necolas/normalize.css */
+	<!--  Meta stuff -->
+	<title>Račun <?php echo $invoice_number; ?></title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link
+		href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap'"
+		rel="stylesheet">
 
-		/* Document
-		   ========================================================================== */
-
-		/**
-		 * 1. Correct the line height in all browsers.
-		 * 2. Prevent adjustments of font size after orientation changes in iOS.
-		 */
-
-		html {
-			line-height: 1.15; /* 1 */
-			-webkit-text-size-adjust: 100%; /* 2 */
-		}
-
-		/* Sections
-		   ========================================================================== */
-
-		/**
-		 * Remove the margin in all browsers.
-		 */
-
-		body {
-			margin: 0;
-		}
-
-		/**
-		 * Render the `main` element consistently in IE.
-		 */
-
-		main {
-			display: block;
-		}
-
-		/**
-		 * Correct the font size and margin on `h1` elements within `section` and
-		 * `article` contexts in Chrome, Firefox, and Safari.
-		 */
-
-		h1 {
-			font-size: 2em;
-			margin: 0.67em 0;
-		}
-
-		/* Grouping content
-		   ========================================================================== */
-
-		/**
-		 * 1. Add the correct box sizing in Firefox.
-		 * 2. Show the overflow in Edge and IE.
-		 */
-
-		hr {
-			box-sizing: content-box; /* 1 */
-			height: 0; /* 1 */
-			overflow: visible; /* 2 */
-		}
-
-		/**
-		 * 1. Correct the inheritance and scaling of font size in all browsers.
-		 * 2. Correct the odd `em` font sizing in all browsers.
-		 */
-
-		pre {
-			font-family: monospace, monospace; /* 1 */
-			font-size: 1em; /* 2 */
-		}
-
-		/* Text-level semantics
-		   ========================================================================== */
-
-		/**
-		 * Remove the gray background on active links in IE 10.
-		 */
-
-		a {
-			background-color: transparent;
-		}
-
-		/**
-		 * 1. Remove the bottom border in Chrome 57-
-		 * 2. Add the correct text decoration in Chrome, Edge, IE, Opera, and Safari.
-		 */
-
-		abbr[title] {
-			border-bottom: none; /* 1 */
-			text-decoration: underline; /* 2 */
-			text-decoration: underline dotted; /* 2 */
-		}
-
-		/**
-		 * Add the correct font weight in Chrome, Edge, and Safari.
-		 */
-
-		b,
-		strong {
-			font-weight: bolder;
-		}
-
-		/**
-		 * 1. Correct the inheritance and scaling of font size in all browsers.
-		 * 2. Correct the odd `em` font sizing in all browsers.
-		 */
-
-		code,
-		kbd,
-		samp {
-			font-family: monospace, monospace; /* 1 */
-			font-size: 1em; /* 2 */
-		}
-
-		/**
-		 * Add the correct font size in all browsers.
-		 */
-
-		small {
-			font-size: 80%;
-		}
-
-		/**
-		 * Prevent `sub` and `sup` elements from affecting the line height in
-		 * all browsers.
-		 */
-
-		sub,
-		sup {
-			font-size: 75%;
-			line-height: 0;
-			position: relative;
-			vertical-align: baseline;
-		}
-
-		sub {
-			bottom: -0.25em;
-		}
-
-		sup {
-			top: -0.5em;
-		}
-
-		/* Embedded content
-		   ========================================================================== */
-
-		/**
-		 * Remove the border on images inside links in IE 10.
-		 */
-
-		img {
-			border-style: none;
-		}
-
-		/* Forms
-		   ========================================================================== */
-
-		/**
-		 * 1. Change the font styles in all browsers.
-		 * 2. Remove the margin in Firefox and Safari.
-		 */
-
-		button,
-		input,
-		optgroup,
-		select,
-		textarea {
-			font-family: inherit; /* 1 */
-			font-size: 100%; /* 1 */
-			line-height: 1.15; /* 1 */
-			margin: 0; /* 2 */
-		}
-
-		/**
-		 * Show the overflow in IE.
-		 * 1. Show the overflow in Edge.
-		 */
-
-		button,
-		input { /* 1 */
-			overflow: visible;
-		}
-
-		/**
-		 * Remove the inheritance of text transform in Edge, Firefox, and IE.
-		 * 1. Remove the inheritance of text transform in Firefox.
-		 */
-
-		button,
-		select { /* 1 */
-			text-transform: none;
-		}
-
-		/**
-		 * Correct the inability to style clickable types in iOS and Safari.
-		 */
-
-		button,
-		[type="button"],
-		[type="reset"],
-		[type="submit"] {
-			-webkit-appearance: button;
-		}
-
-		/**
-		 * Remove the inner border and padding in Firefox.
-		 */
-
-		button::-moz-focus-inner,
-		[type="button"]::-moz-focus-inner,
-		[type="reset"]::-moz-focus-inner,
-		[type="submit"]::-moz-focus-inner {
-			border-style: none;
-			padding: 0;
-		}
-
-		/**
-		 * Restore the focus styles unset by the previous rule.
-		 */
-
-		button:-moz-focusring,
-		[type="button"]:-moz-focusring,
-		[type="reset"]:-moz-focusring,
-		[type="submit"]:-moz-focusring {
-			outline: 1px dotted ButtonText;
-		}
-
-		/**
-		 * Correct the padding in Firefox.
-		 */
-
-		fieldset {
-			padding: 0.35em 0.75em 0.625em;
-		}
-
-		/**
-		 * 1. Correct the text wrapping in Edge and IE.
-		 * 2. Correct the color inheritance from `fieldset` elements in IE.
-		 * 3. Remove the padding so developers are not caught out when they zero out
-		 *    `fieldset` elements in all browsers.
-		 */
-
-		legend {
-			box-sizing: border-box; /* 1 */
-			color: inherit; /* 2 */
-			display: table; /* 1 */
-			max-width: 100%; /* 1 */
-			padding: 0; /* 3 */
-			white-space: normal; /* 1 */
-		}
-
-		/**
-		 * Add the correct vertical alignment in Chrome, Firefox, and Opera.
-		 */
-
-		progress {
-			vertical-align: baseline;
-		}
-
-		/**
-		 * Remove the default vertical scrollbar in IE 10+.
-		 */
-
-		textarea {
-			overflow: auto;
-		}
-
-		/**
-		 * 1. Add the correct box sizing in IE 10.
-		 * 2. Remove the padding in IE 10.
-		 */
-
-		[type="checkbox"],
-		[type="radio"] {
-			box-sizing: border-box; /* 1 */
-			padding: 0; /* 2 */
-		}
-
-		/**
-		 * Correct the cursor style of increment and decrement buttons in Chrome.
-		 */
-
-		[type="number"]::-webkit-inner-spin-button,
-		[type="number"]::-webkit-outer-spin-button {
-			height: auto;
-		}
-
-		/**
-		 * 1. Correct the odd appearance in Chrome and Safari.
-		 * 2. Correct the outline style in Safari.
-		 */
-
-		[type="search"] {
-			-webkit-appearance: textfield; /* 1 */
-			outline-offset: -2px; /* 2 */
-		}
-
-		/**
-		 * Remove the inner padding in Chrome and Safari on macOS.
-		 */
-
-		[type="search"]::-webkit-search-decoration {
-			-webkit-appearance: none;
-		}
-
-		/**
-		 * 1. Correct the inability to style clickable types in iOS and Safari.
-		 * 2. Change font properties to `inherit` in Safari.
-		 */
-
-		::-webkit-file-upload-button {
-			-webkit-appearance: button; /* 1 */
-			font: inherit; /* 2 */
-		}
-
-		/* Interactive
-		   ========================================================================== */
-
-		/*
-		 * Add the correct display in Edge, IE 10+, and Firefox.
-		 */
-
-		details {
-			display: block;
-		}
-
-		/*
-		 * Add the correct display in all browsers.
-		 */
-
-		summary {
-			display: list-item;
-		}
-
-		/* Misc
-		   ========================================================================== */
-
-		/**
-		 * Add the correct display in IE 10+.
-		 */
-
-		template {
-			display: none;
-		}
-
-		/**
-		 * Add the correct display in IE 10.
-		 */
-
-		[hidden] {
-			display: none;
-		}
-
-	</style>
-	<style>
-		@page {
-			margin: 2cm;
-		}
-
-		body {
-			font-family: "DejaVu Sans", sans-serif;
-			margin: 0.5cm auto;
-			text-align: justify;
-			width: 100%;
-		}
-
-		header,
-		footer {
-			position: fixed;
-			width: 100%;
-		}
-
-		header {
-			top: 0;
-			border-bottom: 0.1pt solid #aaa;
-		}
-
-		footer {
-			bottom: 0;
-			border-top: 0.1pt solid #aaa;
-		}
-
-		main {
-			margin-top: 3cm;
-		}
-
-		.full {
-			width: 100%;
-		}
-		.float-left {
-			float: left;
-		}
-		.half {
-			width: 50%;
-		}
-		.center {
-			text-align: center;
-		}
-		table {
-			width: 100%;
-			border-collapse: collapse;
-			font-size: 12px;
-		}
-		table, th, td {
-			border: 1px solid black;
-		}
-		th, td {
-			padding: 5px;
-			text-align: left;
-		}
-		.text-right {
-			text-align: right;
-		}
-		.text-center {
-			text-align: center;
-		}
-		.mt-20 {
-			margin-top: 20px;
-		}
-		.clear {
-			clear: both;
-		}
-	</style>
 </head>
+
 <body>
-<header class="text-center">
-	<div class="full">
-		<!-- company info -->
-		<?php echo get_bloginfo('title') ?><br>
-		<?php echo get_option('woocommerce_store_address') ?><br>
-		<?php echo ($a2 = get_option('woocommerce_store_address2')) ? $a2 . '<br>' : '' ?>
-		<?php echo get_option('woocommerce_store_postcode') ?> <?php echo get_option('woocommerce_store_city') ?><br>
-		<?php echo get_option('woocommerce_default_country') ?><br>
-	</div>
-</header>
+<div class="full flex racun-wrapper">
+	<div class="full racun">
+		<div class="full racun-header bottom-margin">
 
-<main>
-	<div>
-		<div class="float-left half">
-			<!-- billing info -->
-			<?php echo $order->get_formatted_billing_address() ?>
+			<div class="float-left right-margin half">
+				<?php
+				if ( has_custom_logo() ) {
+					the_custom_logo();
+					?>
+				<?php } ?>
+			</div>
+			<div class="float-right half font-x2">
+				<p class="full bold"><?php echo $business_data['name']; ?></p>
+				<p class="full"><?php echo $business_data['address1']; ?></p>
+				<p class="full"><?php echo $business_data['address2']; ?></p>
+				<p class="full"><?php echo $business_data['post_code']; ?> <?php echo $business_data['city']; ?></p>
+				<p class="full">OIB: <?php echo $business_data['oib']; ?></p>
+			</div>
 		</div>
-		<div class="float-left half text-right">
-			<!--other info -->
-			Vrijeme računa:<br> <?php echo date('d.m.Y. H:i', strtotime($invoice->post_date)) ?><br>
+		<div class="full half float-left racun-info">
+			<div class="full">
+				<div class="float-left two-thirds bold">RAČUN broj: </div><div class="float-left third bold"><?php echo $invoice_number; ?></div>
+				<div class="float-left two-thirds">Datum izdavanja računa: </div><div class="float-left  third bold"><?php echo $meta[ $slug . '_created_at' ]; ?></div>
+				<div class="float-left two-thirds">Mjesto izdavanja: </div><div class="float-left  third bold"><?php echo $business_data['city']; ?></div>
+				<div class="float-left two-thirds">OIB: </div><div class="float-left  third bold"><?php echo $business_data['oib']; ?></div>
+			</div>
 		</div>
-		<div class="clear"></div>
+		<div class="half float-left half racun-client">
+			<div class="float-left two-thirds bold">Klijent: </div>
+			<div class="float-left third">
+				<p class="full"><?php echo $content['billing_address']['name']; ?></p>
+				<p class="full"><?php echo $content['billing_address']['first_line']; ?></p>
+				<p class="full"><?php echo $content['billing_address']['second_line']; ?></p>
+				<p class="full"><?php echo $content['billing_address']['postcode']; ?> <?php echo $content['billing_address']['city']; ?></p>
+				<p class="full"><?php echo $content['billing_address']['country']; ?></p>
+			</div>
+		</div>
+		<div class="full racun-table">
+			<div class="full red-row bold center-text table-row">
+				<div class="float-left thirty">Opis</div>
+				<div class="float-left tenth">Količina (h)</div>
+				<div class="float-left fifty">Neto cijena</div>
+				<div class="float-left tenth">Ukupno neto</div>
+			</div>
+			<?php foreach ( $content['line_items'] as $item ) { ?>
+			<div class="full table-row bottom-border center-text stretch">
+				<div class="float-left thirty"><?php echo $item['name']; ?></div>
+				<div class="float-left tenth"><?php echo $item['quantity']; ?></div>
+				<div class="float-left fifty"><?php echo $item['unit_price']; ?></div>
+				<div class="float-left tenth right-align"><?php echo $item['total']; ?></div>
+			</div>
+			<?php } ?>
+			<div class="full table-row center-text">
+				<div class="third float-right">
+					<div class="float-left two-thirds bold">Osnovica: </div><div class="float-right third bold right-align"><?php echo $content['total']; ?></div>
+					<?php foreach ( $content['tax_rates'] as $tax_rate ) { ?>
+					<div class="float-left two-thirds bold"><?php echo $tax_rate['label']; ?> <?php echo $tax_rate['percent']; ?>%: </div><div class="float-right third bold right-align"><?php echo $tax_rate['tax']; ?></div>
+					<?php } ?>
+				</div>
+			</div>
+			<div class="full red-row table-row bold center-text">
+				<div class="third float-right">
+					<div class="float-left two-thirds bold">UKUPNO: </div><div class="float-right third bold right-align"><?php echo $content['total']; ?></div>
+				</div>
+			</div>
+		</div>
+		<div class="full" style="margin-top: 30px;">
+			<p class="full">Račun izrađen: Račun je automatski generiran putem aplikacije <?php echo get_bloginfo( 'name' ); ?></p>
+			<p class="full">Odgovorna osoba: <?php echo $business_data['operator']; ?></p>
+			<p class="full">Plaćanje: Kartica</p>
+			<p>ZKI: <?php echo $meta[ $slug . '_zki' ]; ?></p>
+			<p>JIR: <?php echo $meta[ $slug . '_jri' ]; ?></p>
+			<p style="margin: 10px;"><img src="data:image/png;base64,<?php echo \Milon\Barcode\Facades\DNS2DFacade::getBarcodePNG( $meta[ $slug . '_qr_code_link' ], 'QRCODE' ); ?>"></p>
+		</div>
+		<p style="font-size: 10px; margin-top: 10px"><?php echo $content['notes']; ?></p>
 	</div>
-	<h1 class="full center">Račun <?php echo $invoice->post_title ?></h1>
-	<table>
-		<thead>
-		<tr>
-			<th scope="col">#</th>
-			<th scope="col">Naziv</th>
-			<th scope="col">Cijena</th>
-			<th scope="col">Količina</th>
-			<th scope="col">PDV</th>
-			<th scope="col">Ukupno</th>
-		</tr>
-		</thead>
-		<tbody>
-		<?php
-		$i = 0;
-		foreach ($args['content']['line_items'] as $line_item) {
-			$i++;
-			?>
-		<tr>
-			<td><?php echo $i ?></td>
-			<td><?php echo $line_item['name'] ?></td>
-			<td><?php echo $line_item['unit_price'] ?></td>
-			<td><?php echo $line_item['quantity'] ?></td>
-			<td><?php echo $line_item['total_tax'] ?></td>
-			<td class="text-right"><?php echo $line_item['total'] ?></td>
-		</tr>
-		<?php } ?>
-		<!-- Shipping line -->
+</div>
+<style>
+	/* CSS Reset */
 
-		</tbody>
-	</table>
-	<table class="mt-20">
-		<tbody>
-		<?php foreach ($args['content']['tax_rates'] as $tax) { ?>
-		<tr>
-			<th style="width: 70%;">Porez:</th>
-			<th class="text-right"><?php echo $tax['percent'] ?>%</th>
-			<th class="text-right"><?php echo $tax['tax'] ?></th>
-		</tr>
-		<?php } ?>
-			<tr>
-				<th colspan="2" style="width: 70%;">UKUPNO:</th>
-				<th class="text-right"><?php echo number_format($args['content']['total'], 2, ',', '.') ?> EUR</th>
-			</tr>
-		<tr>
-			<th colspan="2" style="width: 70%;">UKUPNO:</th>
-			<th class="text-right"><?php echo number_format($args['content']['total'] * 7.5345, 2, ',', '.') ?> HRK</th>
-		</tr>
-		</tbody>
-	</table>
+	html {
+		margin: 0;
+		padding: 0;
+		border: 0;
+		overflow-x: hidden;
+	}
 
-	<p>
-		Podaci o fiskalizaciji:<br>
-		JIR: <?php echo $jir = get_post_meta($invoice->ID, '_jir', true) ?><br>
-		ZKI: <?php echo get_post_meta($invoice->ID, '_zki', true) ?><br>
-		<img src="data:image/png;base64,<?php echo base64_encode($args['png']); ?>" width="150" height="150">
-	</p>
-</main>
-<footer>
-	<p>Powered by <a href="https://www.wordpress.org" target="_blank">WordPress</a> - <a href="https://www.woocommerce.com" target="_blank">WooCommerce</a> - <a href="https://nezn.am" target="_blank">Ne Znam</a></p>
-</footer>
+	body,
+	div,
+	div,
+	object,
+	iframe,
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6,
+	p,
+	blockquote,
+	pre,
+	a,
+	abbr,
+	acronym,
+	address,
+	code,
+	del,
+	dfn,
+	em,
+	img,
+	q,
+	dl,
+	dt,
+	dd,
+	ol,
+	ul,
+	li,
+	fieldset,
+	form,
+	label,
+	legend,
+	table,
+	caption,
+	tbody,
+	tfoot,
+	thead,
+	tr,
+	th,
+	td,
+	article,
+	aside,
+	dialog,
+	figure,
+	footer,
+	header,
+	hgroup,
+	nav,
+	section {
+		margin: 0;
+		padding: 0;
+		border: 0;
+		font-weight: inherit;
+		font-style: inherit;
+		font-size: 100%;
+		font-family: Quicksand, sans-serif;
+		vertical-align: baseline;
+		list-style: none;
+	}
+
+	.main-container {
+		width: 100%;
+		overflow-x: hidden;
+		position: relative;
+	}
+
+	/* Basics */
+
+	body {
+		-webkit-font-smoothing: antialiased;
+	}
+
+	* {
+		-webkit-box-sizing: border-box;
+		-moz-box-sizing: border-box;
+		-ms-box-sizing: border-box;
+		-o-box-sizing: border-box;
+		box-sizing: border-box;
+	}
+
+	a {
+		text-decoration: none;
+		color: inherit;
+		cursor: pointer;
+		-webkit-transition: all 0.3s;
+		-moz-transition: all 0.3s;
+		-ms-transition: all 0.3s;
+		-o-transition: all 0.3s;
+		transition: all 0.3s;
+	}
+
+	:focus {
+		outline: none;
+	}
+
+	/* Typography */
+
+	b,
+	strong,
+	.bold {
+		font-weight: 600;
+	}
+
+	.superbold {
+		font-weight: 900;
+	}
+
+	i,
+	em,
+	.italic {
+		font-style: italic;
+	}
+
+	.center-text {
+		text-align: center;
+	}
+
+	.left-text {
+		text-align: left;
+	}
+
+	.right-text {
+		text-align: right;
+	}
+
+	.float-right {
+		float: right;
+	}
+
+	.float-left {
+		float: left;
+	}
+
+	.white-text {
+		color: white;
+	}
+
+	.clickable {
+		cursor: pointer;
+	}
+
+	.animate,
+	svg {
+		-webkit-transition: all 0.3s;
+		-moz-transition: all 0.3s;
+		-ms-transition: all 0.3s;
+		-o-transition: all 0.3s;
+		transition: all 0.3s;
+		-webkit-transform: translateZ(0);
+		-moz-transform: translateZ(0);
+		-ms-transform: translateZ(0);
+		-o-transform: translateZ(0);
+		transform: translateZ(0);
+	}
+
+	@keyframes spin {
+		to {
+			transform: rotate(360deg);
+		}
+	}
+
+	/* Layout */
+
+	.flex {
+		display: block;
+		float: left;
+		flex-flow: row;
+		flex-wrap: wrap;
+		align-items: flex-start;
+		align-content: flex-start;
+	}
+
+	.flex:after {
+		content: "";
+		display: table;
+		clear: both;
+	}
+
+
+	.half {
+		width: 49.99%;
+	}
+
+	.third {
+		width: 33.33%;
+	}
+
+	.two-thirds {
+		width: 66.66%;
+	}
+
+	.full {
+		width: 100%;
+	}
+
+
+
+	/* Functions */
+
+
+	.relative {
+		position: relative;
+	}
+
+	.center-text {
+		text-align: center;
+	}
+
+</style>
+<style>
+	.racun-wrapper {
+		padding: 8vw 4vw;
+	}
+	html {
+		font-size: 20px;
+		line-height: 1.15em;
+		font-family: Quicksand, sans-serif;
+		font-weight: 400;
+		font-style: normal;
+		color: #111;
+	}
+	.racun {
+		font-size: 14px;
+		font-size: 0.7rem;
+	}
+	.bigger {
+		font-size: 18px;
+		font-size: 0.9rem;
+	}
+	.right-margin {
+		margin-right: 24px;
+	}
+	.bottom-margin {
+		margin-bottom: 24px;
+	}
+	.racun-info {
+		padding-bottom: 16px;
+		margin-bottom: 16px;
+	}
+	.racun-client {
+		margin-bottom: 48px;
+	}
+	.table-row {
+		padding: 10px;
+	}
+	.table-row > * {
+		padding: 15px;
+		display: block;
+		justify-content: center;
+		align-items: center;
+		align-content: center;
+	}
+	.thirty {
+		width: 29.99%;
+	}
+	.tenth {
+		width: 9.99%;
+	}
+	.fifty {
+		width: 49.99%;
+	}
+	.bottom-border {
+		border-bottom: 1px dashed #111;
+	}
+	.red-row {
+		background-color: #dadada;
+		color: #3b3b3b;
+		border-bottom: none;
+		border-radius: 10px;
+	}
+	.red-row > * {
+		padding: 8px 4px;
+	}
+	.right-align {
+		justify-content: flex-end;
+	}
+	.font-x2 {
+		font-size: 1rem;
+	}
+</style>
 </body>
+
 </html>

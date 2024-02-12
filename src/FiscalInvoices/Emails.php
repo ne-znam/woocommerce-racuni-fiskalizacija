@@ -3,7 +3,6 @@
 namespace NeZnam\FiscalInvoices;
 
 use Com\Tecnick\Barcode\Type\Square\QrCode;
-use Dompdf\Dompdf;
 use PHPMailer\PHPMailer\PHPMailer;
 
 class Emails extends Instance {
@@ -30,7 +29,6 @@ class Emails extends Instance {
 		);
 
 		add_action('phpmailer_init', array($this, 'phpmailer_init'));
-		add_action( 'wp_mail_succeeded', array($this, 'after_sent'));
 	}
 
 	/**
@@ -45,21 +43,7 @@ class Emails extends Instance {
 			if ($attachment[2] === 'qr-code.png') {
 				$phpmailer->addEmbeddedImage($attachment[0], 'qr-code.png', 'qr-code.png', 'base64', 'image/png', 'inline');
 			} else {
-				$phpmailer->addAttachment($attachment[0], $attachment[2], $attachment[3], $attachment[4], $attachment[6]);
-			}
-		}
-	}
-
-	/**
-	 * @param $mail_data
-	 *
-	 * @return void
-	 */
-	public function after_sent($mail_data) {
-		$attachments = $mail_data['attachments'];
-		foreach ($attachments as $attachment) {
-			if ($attachment[2] === 'qr-code.png' || $attachment[2] === 'racun.pdf') {
-				unlink($attachment[0]);
+				$phpmailer->addAttachment($attachment[0], $attachment[1], $attachment[2], $attachment[3]);
 			}
 		}
 	}
@@ -108,71 +92,48 @@ class Emails extends Instance {
 
 	function add_attachment_to_email($attachments , $email_id, $order) {
 		if ($email_id === 'customer_invoice') {
+			global $wp_filesystem;
+			require_once ( ABSPATH . '/wp-admin/includes/file.php' );
+			WP_Filesystem();
 			$invoice_id = $order->get_meta( '_invoice_number' );
 			$url = get_post_meta( $invoice_id, $this->slug . '_qr_code_link', true );
 			$jir = get_post_meta( $invoice_id, $this->slug . '_jir', true );
 			if (!$url) {
 				return $attachments;
 			}
-			$attachments['qr-code.png'] = $this->create_png($url, $jir);
-			$attachments['racun.pdf'] = $this->create_pdf($order, $jir);
+			$qr = new QrCode( $url, 200, 200 );
+			$png = $qr->getPngData();
+			if ( !$wp_filesystem->exists( WP_CONTENT_DIR . '/uploads/neznam_racuni/' ) ) {
+				$wp_filesystem->mkdir( WP_CONTENT_DIR . '/uploads/neznam_racuni/' );
+			}
+			if (!$wp_filesystem->exists( WP_CONTENT_DIR . '/uploads/neznam_racuni/'. $jir .'.png' )) {
+				$wp_filesystem->put_contents( WP_CONTENT_DIR . '/uploads/neznam_racuni/'. $jir .'.png', $png );
+			}
+
+			$attachments['qr-code.png'] = WP_CONTENT_DIR . '/uploads/neznam_racuni/'. $jir .'.png';
 		}
 		return $attachments;
 	}
 
-	private function create_png($url, $jir) {
-		global $wp_filesystem;
-		require_once ( ABSPATH . '/wp-admin/includes/file.php' );
-		WP_Filesystem();
-		$qr = new QrCode( $url, 200, 200 );
-		$png = $qr->getPngData();
-		if ( !$wp_filesystem->exists( WP_CONTENT_DIR . '/uploads/neznam_racuni/' ) ) {
-			$wp_filesystem->mkdir( WP_CONTENT_DIR . '/uploads/neznam_racuni/' );
+	public function create_pdf($invoice) {
+		$invoice_id = $invoice->get_meta( '_invoice_number' );
+		if ( ! $invoice_id ) {
+			// we don't have fiscalisation data, so we skip this part
+			return;
 		}
-		if (!$wp_filesystem->exists( WP_CONTENT_DIR . '/uploads/neznam_racuni/'. $jir .'.png' )) {
-			$wp_filesystem->put_contents( WP_CONTENT_DIR . '/uploads/neznam_racuni/'. $jir .'.png', $png );
+		$jir = get_post_meta( $invoice_id, $this->slug . '_jir', true );
+		if (!$jir) {
+			return;
 		}
-
-		return WP_CONTENT_DIR . '/uploads/neznam_racuni/'. $jir .'.png';
-	}
-
-	public function create_pdf($order = null, $jir = null) {
-		global $wp_filesystem;
-		require_once ( ABSPATH . '/wp-admin/includes/file.php' );
-		WP_Filesystem();
-		if ($wp_filesystem->exists( WP_CONTENT_DIR . '/uploads/neznam_racuni/'. $jir .'.pdf' )) {
-			//return WP_CONTENT_DIR . '/uploads/neznam_racuni/'. $jir .'.pdf';
-		}
-		$invoice_id = $order->get_meta( '_invoice_number' );
-		$invoice = get_post($invoice_id);
 		$url = get_post_meta( $invoice_id, $this->slug . '_qr_code_link', true );
-		$content = maybe_unserialize($invoice->post_content);
 		$qr = new QrCode( $url, 200, 200 );
 		$png = $qr->getPngData();
-		$template = locate_template('woocommerce/neznam/invoice.php');
-		if (!$template) {
-			$template = plugin_dir_path(__FILE__) . '/../../templates/invoice.php';
-		}
-		ob_start();
-		load_template($template, true, [
-			'invoice' => $invoice,
-			'content' => $content,
-			'order' => $order,
-			'png' => $png,
-		]);
-		$html = ob_get_clean();
-		$dompdf = new Dompdf();
-		$dompdf->loadHtml($html);
-
-		$dompdf->setPaper('A4');
-		$dompdf->render();
-		$data = $dompdf->output();
-		if ( !$wp_filesystem->exists( WP_CONTENT_DIR . '/uploads/neznam_racuni/' ) ) {
-			$wp_filesystem->mkdir( WP_CONTENT_DIR . '/uploads/neznam_racuni/' );
-		}
-		//if (!$wp_filesystem->exists( WP_CONTENT_DIR . '/uploads/neznam_racuni/'. $jir .'.pdf' )) {
-			$wp_filesystem->put_contents( WP_CONTENT_DIR . '/uploads/neznam_racuni/'. $jir .'.pdf', $data );
-		//}
-		return WP_CONTENT_DIR . '/uploads/neznam_racuni/'. $jir .'.pdf';
+		$mpdf = new \Mpdf\Mpdf();
+		$mpdf->WriteHTML('<p>Račun broj: ' . get_post_meta( $invoice_id, '_invoice_number', true ) . '</p>');
+		$mpdf->WriteHTML('<p>JIR: ' . get_post_meta( $invoice_id, $this->slug . '_jir', true ) . '</p>');
+		$mpdf->WriteHTML('<p>ZKI: ' . get_post_meta( $invoice_id, $this->slug . '_zki', true ) . '</p>');
+		$mpdf->WriteHTML('<p><a href="' . $url . '" target="_blank">Provjerite svoj račun ovdje.</a></p>');
+		$mpdf->WriteHTML('<img src="data:image/png;base64,' . base64_encode($png) . '">');
+		$mpdf->Output(WP_CONTENT_DIR . '/uploads/neznam_racuni/'. $jir .'.pdf', 'F');
 	}
 }

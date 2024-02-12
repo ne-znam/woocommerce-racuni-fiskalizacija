@@ -17,8 +17,7 @@
     "minimum-stability": "dev",
     "require": {
       "nticaric/fiskalizacija": "dev-master",
-      "tecnickcom/tc-lib-pdf": "dev-main",
-        "dompdf/dompdf": "dev-master"
+      "tecnickcom/tc-lib-pdf": "dev-main"
     },
     "require-dev": {
       "wp-coding-standards/wpcs": "^3.0"
